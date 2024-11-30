@@ -1,0 +1,13 @@
+noise_thresholds:
+  day_warning: 40  # Пороговое значение для дневного шума (предупреждение)
+  day_critical: 55  # Критический уровень дневного шума
+  night_warning: 30  # Пороговое значение для ночного шума (предупреждение)
+  night_critical: 45  # Критический уровень ночного шума
+
+delta:
+  stalin: 35
+  modern: 20
+  khrushchyovka: 25
+  brezhnevka: 30
+  brick_house: 40
+  monolith_house: 45
