@@ -1,19 +1,23 @@
-from modules.noise_sensor import NoiseSensor
-import time
+import yaml
+from modules.noise_analyzer import NoiseAnalyzer
 
-def main():
-    """
-    Основная функция для генерации уровня шума с помощью эмулятора.
-    Уровень шума будет измеряться каждую секунду.
-    """
-    # Создаем экземпляр эмулятора датчика шума
-    sensor = NoiseSensor(base_noise=30, variation=5, peak_chance=0.2, peak_range=(60, 100), peak_duration_range=(3, 15))
-    
-    # Генерируем 30 значений уровня шума каждую секунду
-    for _ in range(30):
-        noise_level = sensor.get_noise_level()
-        print(f"Уровень шума: {noise_level} дБ")
-        time.sleep(1)  # Измерения каждую секунду
+# Функция для загрузки конфигурации из файлов
+def load_config(default_file='app/modules/default.yaml', user_file='app/config.yaml'):
+    with open(default_file, 'r') as f:
+        default_config = yaml.safe_load(f)
+    with open(user_file, 'r') as f:
+        user_config = yaml.safe_load(f)
 
-if __name__ == "__main__":
-    main()
+    # Объединение дефолтного и пользовательского конфига
+    default_config.update(user_config)
+    return default_config
+
+if __name__ == '__main__':
+    # Загружаем конфиг один раз
+    config = load_config()
+
+    # Инициализируем анализатор с конфигом
+    analyzer = NoiseAnalyzer(config)
+
+    # Пример анализа уровня шума
+    analyzer.analyze_noise()
