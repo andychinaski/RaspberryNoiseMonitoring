@@ -1,31 +1,31 @@
 <template>
   <v-app>
     <!-- Шапка -->
-    <v-app-bar color="blue darken-3" dark>
+    <v-app-bar color="blue darken-4" dense dark>
       <v-toolbar-title>Noise Level Monitoring</v-toolbar-title>
     </v-app-bar>
 
     <!-- Основной контент -->
-    <v-container>
+    <v-main>
+      <v-container>
       <v-row>
         <!-- Левый верхний: Статистика за сутки -->
-        <v-col cols="6">
+        <v-col cols="3">
           <v-card>
             <v-card-title>Статистика за сутки</v-card-title>
             <v-card-text>
-              <p>Максимальный уровень шума: {{ stats.maxNoise }} дБ</p>
-              <p>Минимальный уровень шума: {{ stats.minNoise }} дБ</p>
               <p>Текущий уровень шума: {{ stats.currentNoise }} дБ</p>
+              <p>Максимальный уровень шума: {{ stats.maxNoise }} дБ</p>
+              <p>Минимальный уровень шума: {{ stats.minNoise }} дБ</p>                
             </v-card-text>
           </v-card>
         </v-col>
 
         <!-- Правый верхний: График -->
-        <v-col cols="6">
+        <v-col cols="9">
           <v-card>
             <v-card-title>Уровень шума за сутки</v-card-title>
             <v-card-text>
-              <canvas id="noise-chart"></canvas>
             </v-card-text>
           </v-card>
         </v-col>
@@ -61,6 +61,8 @@
         </v-col>
       </v-row>
     </v-container>
+    </v-main>
+    
   </v-app>
 </template>
 
@@ -82,9 +84,3 @@ export default {
   },
 };
 </script>
-
-<style>
-#noise-chart {
-  height: 300px;
-}
-</style>

@@ -1,8 +1,9 @@
 import yaml
+import time
 from modules.noise_analyzer import NoiseAnalyzer
 
 # Функция для загрузки конфигурации из файлов
-def load_config(default_file='app/modules/default.yaml', user_file='app/config.yaml'):
+def load_config(default_file='modules/default.yaml', user_file='config.yaml'):
     with open(default_file, 'r') as f:
         default_config = yaml.safe_load(f)
     with open(user_file, 'r') as f:
@@ -19,5 +20,8 @@ if __name__ == '__main__':
     # Инициализируем анализатор с конфигом
     analyzer = NoiseAnalyzer(config)
 
-    # Пример анализа уровня шума
-    analyzer.analyze_noise()
+    # Запуск мониторинга на 2 минуты
+    start_time = time.time()
+    while time.time() - start_time < 120:  # 120 секунд = 2 минуты
+        analyzer.analyze_noise()  # Анализируем уровень шума
+        time.sleep(5)  # Задержка в 5 секунд между анализами

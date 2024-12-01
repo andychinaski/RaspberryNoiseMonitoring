@@ -8,6 +8,8 @@ class NoiseAnalyzer:
         self.sensor = NoiseSensor()
         self.high_noise_start = None
         self.noise_logger = FileLogger('noiseMeasuring')
+        self.noise_warnings = FileLogger('noiseWarnings')
+        self.checkDuration = 10
 
     def get_current_noise_level(self):
         return self.sensor.get_noise_level()
@@ -40,12 +42,12 @@ class NoiseAnalyzer:
         if adjusted_noise_level > warning_level:
             if not self.high_noise_start:
                 self.high_noise_start = datetime.datetime.now()  # Начало превышения
-            elif (datetime.datetime.now() - self.high_noise_start).total_seconds() > 3:
+            elif (datetime.datetime.now() - self.high_noise_start).total_seconds() > self.checkDuration:
                 if adjusted_noise_level > critical_level:
-                    print(f"Критический уровень шума держится более 3 секунд: {adjusted_noise_level} дБ")
+                    self.noise_warnings.log(f"Критический уровень шума держится более {self.checkDuration} секунд: {current_noise_level} дБ","CRITICAL")
                 else:
-                    print(f"Высокий уровень шума держится более 3 секунд: {adjusted_noise_level} дБ")
+                    self.noise_warnings.log(f"Высокий уровень шума держится более {self.checkDuration} секунд: {current_noise_level} дБ", "WARNING")
         else:
             self.high_noise_start = None  # Сброс таймера при нормализации
 
-        self.noise_logger.log("Текущий уровень {current_noise_level}")
+        self.noise_logger.log(f"Текущий уровень {current_noise_level} дБ")
