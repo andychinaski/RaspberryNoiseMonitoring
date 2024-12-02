@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import os
 from datetime import datetime
 
 app = Flask(__name__)
+CORS(app)  # Разрешаем CORS-запросы
 
 # Указываем базовый путь до логов
 LOGS_BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../app/logs'))
@@ -18,12 +20,14 @@ def read_logs(log_type="noiseMeasuring"):
     logs = []
     with open(log_file, 'r', encoding='utf-8') as f:
         for line in f:
-            timestamp, level, message = line.strip().split(' - ', 2)
-            logs.append({
-                'timestamp': timestamp,
-                'level': level,
-                'message': message
-            })
+            parts = line.strip().split(' - ', 2)
+            if len(parts) == 3:
+                timestamp, level, message = parts
+                logs.append({
+                    'timestamp': timestamp,
+                    'level': level,
+                    'message': message
+                })
     return logs
 
 @app.route('/api/logs', methods=['GET'])
@@ -33,4 +37,4 @@ def get_logs():
     return jsonify(logs)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)

@@ -26,6 +26,7 @@
           <v-card>
             <v-card-title>Уровень шума за сутки</v-card-title>
             <v-card-text>
+              <LogViewer logType="noiseMeasuring" title="Noise Logs" />
             </v-card-text>
           </v-card>
         </v-col>
@@ -67,7 +68,12 @@
 </template>
 
 <script>
+import LogViewer from "@/components/LogViewer.vue";
+
 export default {
+  components: {
+    LogViewer,
+  },
   data() {
     return {
       stats: {

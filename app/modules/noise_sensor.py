@@ -3,7 +3,7 @@ import math
 import time
 
 class NoiseSensor:
-    def __init__(self, base_noise=30, variation=5, peak_chance=0.1, peak_range=(60, 100), peak_duration_range=(1, 30)):
+    def __init__(self, base_noise=10, variation=5, peak_chance=0.1, peak_range=(60, 100), peak_duration_range=(1, 30)):
         """
         Эмулятор датчика шума с реалистичной генерацией уровней шума.
         :param base_noise: Базовый уровень шума (дБ).
