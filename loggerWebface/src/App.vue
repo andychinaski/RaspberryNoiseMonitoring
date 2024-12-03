@@ -14,9 +14,10 @@
           <v-card>
             <v-card-title>Статистика за сутки</v-card-title>
             <v-card-text>
+              
               <p>Текущий уровень шума: {{ stats.currentNoise }} дБ</p>
               <p>Максимальный уровень шума: {{ stats.maxNoise }} дБ</p>
-              <p>Минимальный уровень шума: {{ stats.minNoise }} дБ</p>                
+              <p>Минимальный уровень шума: {{ stats.minNoise }} дБ</p>
             </v-card-text>
           </v-card>
         </v-col>
@@ -26,7 +27,7 @@
           <v-card>
             <v-card-title>Уровень шума за сутки</v-card-title>
             <v-card-text>
-              <LogViewer logType="noiseMeasuring" title="Noise Logs" />
+              <LogViewer logType="noiseMeasuring"/>
             </v-card-text>
           </v-card>
         </v-col>
@@ -38,11 +39,7 @@
           <v-card>
             <v-card-title>Логи превышения уровня шума</v-card-title>
             <v-card-text>
-              <ul>
-                <li v-for="log in exceedLogs" :key="log.id">
-                  {{ log.time }} - {{ log.message }}
-                </li>
-              </ul>
+              <LogViewer logType="noiseWarnings"/>
             </v-card-text>
           </v-card>
         </v-col>
@@ -52,11 +49,7 @@
           <v-card>
             <v-card-title>Логи уведомлений</v-card-title>
             <v-card-text>
-              <ul>
-                <li v-for="log in notificationLogs" :key="log.id">
-                  {{ log.time }} - {{ log.message }}
-                </li>
-              </ul>
+              <LogViewer logType="notifications"/>
             </v-card-text>
           </v-card>
         </v-col>

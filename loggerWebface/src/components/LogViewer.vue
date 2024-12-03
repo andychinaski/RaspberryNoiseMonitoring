@@ -8,7 +8,7 @@
           </li>
         </ul>
       </div>
-  </template>
+</template>
   
   <script>
     const BASE_API_URL = "http://localhost:5000";   
@@ -50,7 +50,7 @@
   
   <style scoped>
   .log-viewer {
-    max-height: 300px;
+    height: 300px;
     overflow-y: auto;
     background-color: #f5f5f5; /* Светло-серый фон */
     padding: 16px;
