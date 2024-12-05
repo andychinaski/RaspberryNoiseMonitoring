@@ -77,3 +77,16 @@ def insert_warning_event(measure_id, event, info):
     conn.close()
 
     return new_id
+
+def get_all_measurements():
+    """Получение всех записей из таблицы measurements"""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+
+    # Выполнение запроса для получения всех записей
+    cursor.execute("SELECT * FROM measurements")
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows

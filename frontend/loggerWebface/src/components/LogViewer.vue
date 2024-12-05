@@ -2,8 +2,8 @@
       <div class="log-viewer">
         <ul>
           <li v-for="log in logs" :key="log.timestamp">
-            <span :class="'log-' + log.level.toLowerCase()">
-              {{ log.timestamp }} - {{ log.level }}: {{ log.message }}
+            <span :class="'log-info'">
+              {{ log.timestamp }} - {{ log.noise_level }}
             </span>
           </li>
         </ul>
@@ -31,7 +31,7 @@
     },
     methods: {
       fetchLogs() {
-        const apiUrl = `${BASE_API_URL}/api/logs?type=${this.logType}`;
+        const apiUrl = `${BASE_API_URL}/api/measurements`;
         fetch(apiUrl)
           .then((response) => response.json())
           .then((data) => {
