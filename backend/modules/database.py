@@ -78,15 +78,54 @@ def insert_warning_event(measure_id, event, info):
 
     return new_id
 
-def get_all_measurements():
-    """Получение всех записей из таблицы measurements"""
+def get_measurements_by_date(date=None):
+    """
+    Получение записей из таблицы measurements.
+    Если дата передана, возвращаются записи только за этот день.
+    Если дата не указана, возвращаются все записи.
+
+    :param date: Дата в формате 'YYYY-MM-DD' (опционально).
+    :return: Список записей.
+    """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
-    # Выполнение запроса для получения всех записей
-    cursor.execute("SELECT * FROM measurements")
-    rows = cursor.fetchall()
+    if date:
+        # Запрос для выборки записей за конкретную дату
+        cursor.execute("""
+            SELECT * FROM measurements
+            WHERE DATE(timestamp) = ?
+        """, (date,))
+    else:
+        # Запрос для выборки всех записей
+        cursor.execute("SELECT * FROM measurements")
 
+    rows = cursor.fetchall()
     conn.close()
 
     return rows
+
+def get_min_max_noise(date):
+    """
+    Получение минимального и максимального значения уровня шума за определённый день.
+
+    :param date: Дата в формате 'YYYY-MM-DD'
+    :return: Кортеж (min_noise, max_noise) или None, если данных нет
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+
+    # Выполнение запроса для получения минимального и максимального значения шума
+    cursor.execute("""
+        SELECT MIN(noise_level), MAX(noise_level)
+        FROM measurements
+        WHERE DATE(timestamp) = ?
+    """, (date,))
+    
+    result = cursor.fetchone()
+    conn.close()
+
+    # Проверяем, есть ли данные
+    if result and result[0] is not None and result[1] is not None:
+        return result  # Кортеж (min_noise, max_noise)
+    return None

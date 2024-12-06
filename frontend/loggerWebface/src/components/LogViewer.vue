@@ -8,6 +8,9 @@
           </li>
         </ul>
       </div>
+      <div class="date-picker">
+        <input type="date" id="date" v-model="selectedDate"/>
+    </div>
 </template>
   
   <script>
@@ -27,6 +30,7 @@
     data() {
       return {
         logs: [],
+        selectedDate: new Date().toISOString().substr(0, 10), // Сегодняшняя дата
       };
     },
     methods: {
@@ -58,6 +62,10 @@
     border-radius: 4px; /* Скругленные углы */
   }
   
+  .date-picker {
+  margin-top: 10px;
+}
+
   ul {
     list-style-type: none;
     margin: 0;

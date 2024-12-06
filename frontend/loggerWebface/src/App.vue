@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <!-- Шапка -->
-    <v-app-bar color="blue darken-4" dense dark>
+    <v-app-bar color="primary">
       <v-toolbar-title>Noise Level Monitoring</v-toolbar-title>
     </v-app-bar>
 
@@ -11,20 +11,17 @@
       <v-row>
         <!-- Левый верхний: Статистика за сутки -->
         <v-col cols="3">
-          <v-card>
+          <v-card class="card-height">
             <v-card-title>Статистика за сутки</v-card-title>
             <v-card-text>
-              
-              <p>Текущий уровень шума: {{ stats.currentNoise }} дБ</p>
-              <p>Максимальный уровень шума: {{ stats.maxNoise }} дБ</p>
-              <p>Минимальный уровень шума: {{ stats.minNoise }} дБ</p>
+              <CurrentStats/>
             </v-card-text>
           </v-card>
         </v-col>
 
         <!-- Правый верхний: График -->
         <v-col cols="9">
-          <v-card>
+          <v-card class="card-height">
             <v-card-title>Уровень шума за сутки</v-card-title>
             <v-card-text>
               <LogViewer logType="noiseMeasuring"/>
@@ -36,7 +33,7 @@
       <v-row>
         <!-- Левый нижний: Логи превышения -->
         <v-col cols="6">
-          <v-card>
+          <v-card class="card-height">
             <v-card-title>Логи превышения уровня шума</v-card-title>
             <v-card-text>
               <LogViewer logType="noiseWarnings"/>
@@ -46,7 +43,7 @@
 
         <!-- Правый нижний: Логи уведомлений -->
         <v-col cols="6">
-          <v-card>
+          <v-card class="card-height">
             <v-card-title>Логи уведомлений</v-card-title>
             <v-card-text>
               <LogViewer logType="notifications"/>
@@ -62,10 +59,12 @@
 
 <script>
 import LogViewer from "@/components/LogViewer.vue";
+import CurrentStats from "@/components/CurrentStats.vue";
 
 export default {
   components: {
     LogViewer,
+    CurrentStats,
   },
   data() {
     return {
@@ -83,3 +82,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.card-height {
+  height: 400px;
+}
+</style>
