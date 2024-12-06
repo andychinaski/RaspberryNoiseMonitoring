@@ -1,4 +1,5 @@
 <template>
+    <div class="log-output">
       <div class="log-viewer">
         <ul>
           <li v-for="log in logs" :key="log.timestamp">
@@ -9,8 +10,9 @@
         </ul>
       </div>
       <div class="date-picker">
-        <input type="date" id="date" v-model="selectedDate"/>
-    </div>
+          <input type="date" id="date" v-model="selectedDate"/>
+      </div>
+    </div>      
 </template>
   
   <script>
@@ -53,6 +55,9 @@
   </script>
   
   <style scoped>
+  .log-output{
+    height: 350px;
+  }
   .log-viewer {
     height: 300px;
     overflow-y: auto;

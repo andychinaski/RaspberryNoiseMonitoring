@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from .database import get_measurements_by_date, get_min_max_noise
+from .database import get_measurements_by_date, get_noise_stats
 
 app = Flask(__name__)
 CORS(app)  # Разрешаем CORS-запросы
@@ -25,7 +25,7 @@ def get_measurements():
     return jsonify(data)
 
 @app.route('/api/noise-stats', methods=['GET'])
-def get_noise_stats():
+def get_noise_stats_route():
     # Получение параметра даты из запроса
     date = request.args.get('date')
 
@@ -33,18 +33,23 @@ def get_noise_stats():
         return jsonify({"error": "Date parameter is required"}), 400
 
     try:
-        # Получаем минимальный и максимальный уровень шума за указанный день
-        noise_stats = get_min_max_noise(date)
+        # Получаем статистику шума за указанный день
+        noise_stats = get_noise_stats(date)
         
         if noise_stats:
-            min_noise, max_noise = noise_stats
             return jsonify({
                 "date": date,
-                "min_noise": min_noise,
-                "max_noise": max_noise
+                "min_noise": noise_stats['min_noise'],
+                "max_noise": noise_stats['max_noise'],
+                "current_noise": noise_stats['current_noise']
             })
         else:
-            return jsonify({"error": f"No data found for date {date}"}), 400
+            return jsonify({
+                "date": date,
+                "min_noise": 0,
+                "max_noise": 0,
+                "current_noise": 0
+            })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

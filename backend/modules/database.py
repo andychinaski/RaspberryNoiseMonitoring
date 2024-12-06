@@ -105,27 +105,43 @@ def get_measurements_by_date(date=None):
 
     return rows
 
-def get_min_max_noise(date):
+def get_noise_stats(date):
     """
-    Получение минимального и максимального значения уровня шума за определённый день.
+    Получение статистики уровня шума за определённый день.
 
     :param date: Дата в формате 'YYYY-MM-DD'
-    :return: Кортеж (min_noise, max_noise) или None, если данных нет
+    :return: Словарь с ключами 'min_noise', 'max_noise' и 'current_noise' или None, если данных нет
     """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
-    # Выполнение запроса для получения минимального и максимального значения шума
+    # Получение минимального и максимального уровня шума за день
     cursor.execute("""
         SELECT MIN(noise_level), MAX(noise_level)
         FROM measurements
         WHERE DATE(timestamp) = ?
     """, (date,))
-    
-    result = cursor.fetchone()
+    min_max_result = cursor.fetchone()
+
+    # Получение последней записи для текущего дня
+    cursor.execute("""
+        SELECT noise_level
+        FROM measurements
+        WHERE DATE(timestamp) = ?
+        ORDER BY timestamp DESC
+        LIMIT 1
+    """, (date,))
+    current_result = cursor.fetchone()
+
     conn.close()
 
-    # Проверяем, есть ли данные
-    if result and result[0] is not None and result[1] is not None:
-        return result  # Кортеж (min_noise, max_noise)
+    if min_max_result and current_result:
+        min_noise, max_noise = min_max_result
+        current_noise = current_result[0]
+        return {
+            'min_noise': min_noise,
+            'max_noise': max_noise,
+            'current_noise': current_noise
+        }
+
     return None

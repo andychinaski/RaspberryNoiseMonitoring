@@ -82,9 +82,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.card-height {
-  height: 400px;
-}
-</style>
