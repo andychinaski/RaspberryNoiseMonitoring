@@ -24,7 +24,7 @@
           <v-card class="card-height">
             <v-card-title>Уровень шума за сутки</v-card-title>
             <v-card-text>
-              <LogViewer logType="noiseMeasuring"/>
+              <LogViewer apiEndpoint="measurements"/>
             </v-card-text>
           </v-card>
         </v-col>
@@ -36,7 +36,7 @@
           <v-card class="card-height">
             <v-card-title>Логи превышения уровня шума</v-card-title>
             <v-card-text>
-              <LogViewer logType="noiseWarnings"/>
+              <LogViewer apiEndpoint="noiseWarnings"/>
             </v-card-text>
           </v-card>
         </v-col>
@@ -46,7 +46,7 @@
           <v-card class="card-height">
             <v-card-title>Логи уведомлений</v-card-title>
             <v-card-text>
-              <LogViewer logType="notifications"/>
+              <LogViewer apiEndpoint="notifications"/>
             </v-card-text>
           </v-card>
         </v-col>
