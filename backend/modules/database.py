@@ -3,6 +3,8 @@ import os
 
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
 
+''' ИНИЦИАЛИЗАЦИЯ БД НАЧАЛО '''
+
 def initialize_database():
     """Инициализация базы данных и создание таблиц, если они не существуют"""
     conn = sqlite3.connect(DATABASE_PATH)
@@ -28,9 +30,23 @@ def initialize_database():
     )
     ''')
 
+    # Создание таблицы для хранения уведомлений Telegram
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS telegram_notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message TEXT NOT NULL,
+        sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        status TEXT CHECK(status IN ('sent', 'failed')) DEFAULT 'sent'
+    )
+    ''')
+
     conn.commit()
     conn.close()
     print("База данных инициализирована.")
+
+''' ИНИЦИАЛИЗАЦИЯ БД КОНЕЦ '''
+
+''' ОСНОВНЫЕ ИНСЕРТЫ НАЧАЛО '''
 
 def insert_measurement(noise_level):
     """
@@ -77,6 +93,29 @@ def insert_warning_event(measure_id, event, info):
     conn.close()
 
     return new_id
+
+def insert_telegram_notification(message, status="sent"):
+    """
+    Добавляет запись в таблицу telegram_notifications.
+
+    :param message: Сообщение, отправленное в Telegram (строка).
+    :param status: Статус отправки (по умолчанию "sent"). Допустимые значения: "sent", "failed".
+    :return: ID новой добавленной записи.
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    INSERT INTO telegram_notifications (message, status)
+    VALUES (?, ?)
+    ''', (message, status))
+
+    conn.commit()
+    new_id = cursor.lastrowid  # Получение ID новой записи
+    conn.close()
+    return new_id
+
+''' ОСНОВНЫЕ ИНСЕРТЫ КОНЕЦ '''
 
 def get_measurements_by_date(date=None):
     """
@@ -203,3 +242,21 @@ def get_critical_events_by_date(date=None):
     ]
 
     return events
+
+def get_last_notification_date():
+    """
+    Получение даты последнего уведомления из таблицы telegram_notifications.
+    
+    :return: Дата последнего уведомления в формате 'YYYY-MM-DD', или None, если уведомлений нет.
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT MAX(timestamp) FROM telegram_notifications
+    """)
+    
+    last_notification_date = cursor.fetchone()[0]  # Извлекаем дату из результата запроса
+    conn.close()
+
+    return last_notification_date
