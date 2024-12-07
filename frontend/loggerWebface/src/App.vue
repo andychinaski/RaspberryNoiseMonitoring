@@ -23,22 +23,10 @@
         <v-col cols="9">
           <v-card class="card-height">
             <v-card-title>
-              <v-row align="center" justify="space-between" no-gutters>
-                <v-col cols="auto">
-                  <span>Уровень шума за сутки</span>
-                </v-col>
-                <v-col cols="auto">
-                  <v-switch 
-                    v-model="isLog" 
-                    label="График / Лог" 
-                    :true-value="true" 
-                    :false-value="false" 
-                    dense/>
-                </v-col>
-              </v-row>
+              <span>Уровень шума за сутки</span>
             </v-card-title>
             <v-card-text>
-              <LogViewer v-if="isLog" apiEndpoint="measurements" />
+              <LogViewer apiEndpoint="measurements" />
             </v-card-text>
           </v-card>
         </v-col>
@@ -50,7 +38,7 @@
           <v-card class="card-height">
             <v-card-title>Логи превышения уровня шума</v-card-title>
             <v-card-text>
-              <LogViewer apiEndpoint="noiseWarnings"/>
+              <LogViewer apiEndpoint="critical-events"/>
             </v-card-text>
           </v-card>
         </v-col>
@@ -87,13 +75,7 @@ export default {
         minNoise: 0,
         currentNoise: 0,
       },
-      exceedLogs: [],
-      notificationLogs: [],
-      isLog: false,
     };
-  },
-  mounted() {
-    // Логика загрузки данных будет здесь.
   },
 };
 </script>

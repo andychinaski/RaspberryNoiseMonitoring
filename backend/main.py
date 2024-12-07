@@ -3,6 +3,7 @@ import yaml
 import time
 from modules.noise_analyzer import NoiseAnalyzer
 from modules.database import initialize_database
+from modules.tgbot import TelegramNotifier
 from modules.server import app
 
 # Функция для загрузки конфигурации из файлов
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     # Инициализируем БД
     initialize_database()
     # Инициализируем анализатор с конфигом
-    analyzer = NoiseAnalyzer(config)
+    '''analyzer = NoiseAnalyzer(config)
 
     # Запуск сервера Flask в фоновом режиме
     from threading import Thread
@@ -33,4 +34,8 @@ if __name__ == '__main__':
     start_time = time.time()
     while time.time() - start_time < 1200:  # 120 секунд = 2 минуты
         analyzer.analyze_noise()  # Анализируем уровень шума
-        time.sleep(5)  # Задержка в 5 секунд между анализами
+        time.sleep(5)  # Задержка в 5 секунд между анализами'''
+    
+    notifier = TelegramNotifier('db_path')
+
+    notifier.check_env()

@@ -3,9 +3,17 @@
     <div class="log-viewer">
       <ul>
         <li v-for="log in logs" :key="log.timestamp">
-          <span class="log-info">
-            {{ log.timestamp }} - {{ log.noise_level }}
-          </span>
+          <template v-if="apiEndpoint === 'measurements'">
+            <span class="log-info">
+              {{ log.timestamp }} - Уровень шума: {{ log.noise_level }} дБ
+            </span>
+          </template>
+          <template v-else-if="apiEndpoint === 'critical-events'">
+            <span class="log-info">
+              {{ log.timestamp }} - Событие: {{ log.type }} ({{ log.info }})
+            </span>
+          </template>
+          <v-divider/>
         </li>
       </ul>
     </div>

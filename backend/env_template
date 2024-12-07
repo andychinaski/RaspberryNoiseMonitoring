@@ -1,0 +1,2 @@
+TELEGRAM_TOKEN=<from_bot_father>
+TELEGRAM_CHAT_ID=Напишите своему боту, чтобы получить ID чата через запрос https://api.telegram.org/bot<your-bot-token>/getUpdates

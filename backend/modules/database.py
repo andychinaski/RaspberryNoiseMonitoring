@@ -145,3 +145,61 @@ def get_noise_stats(date):
         }
 
     return None
+
+def get_critical_events_by_date(date=None):
+    """
+    Получение критических событий из таблицы warning_events с дополнительной информацией.
+    Если дата передана, возвращаются события только за этот день.
+    Если дата не указана, возвращаются все события.
+
+    :param date: Дата в формате 'YYYY-MM-DD' (опционально).
+    :return: Список событий с деталями (ID, дата, уровень шума, тип события, информация).
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+
+    if date:
+        query = """
+            SELECT 
+                we.id AS event_id,
+                m.timestamp AS timestamp,
+                m.noise_level AS noise_level,
+                we.event AS event_type,
+                we.info AS event_info
+            FROM warning_events we
+            JOIN measurements m ON we.measure_id = m.id
+            WHERE we.event IN ('WARNING', 'CRITICAL') AND DATE(m.timestamp) = ?
+            ORDER BY m.timestamp DESC
+        """
+        cursor.execute(query, (date,))
+    else:
+        query = """
+            SELECT 
+                we.id AS event_id,
+                m.timestamp AS timestamp,
+                m.noise_level AS noise_level,
+                we.event AS event_type,
+                we.info AS event_info
+            FROM warning_events we
+            JOIN measurements m ON we.measure_id = m.id
+            WHERE we.event IN ('WARNING', 'CRITICAL')
+            ORDER BY m.timestamp DESC
+        """
+        cursor.execute(query)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Преобразуем результаты в список словарей
+    events = [
+        {
+            "id": row[0],
+            "timestamp": row[1],
+            "noise_level": row[2],
+            "type": row[3],
+            "info": row[4],
+        }
+        for row in rows
+    ]
+
+    return events

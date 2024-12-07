@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from .database import get_measurements_by_date, get_noise_stats
+from .database import get_measurements_by_date, get_noise_stats, get_critical_events_by_date
 
 app = Flask(__name__)
 CORS(app)  # Разрешаем CORS-запросы
@@ -53,6 +53,21 @@ def get_noise_stats_route():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/critical-events', methods=['GET'])
+def get_critical_events():
+    """
+    Эндпоинт для получения критических событий.
+    Поддерживает фильтрацию по дате, если передан параметр date.
+    """
+    # Получаем параметр date из запроса
+    date = request.args.get('date')
+
+    # Получаем критические события из базы данных
+    events = get_critical_events_by_date(date) if date else get_critical_events_by_date()
+
+    # Преобразуем результат в JSON-ответ
+    return jsonify(events)
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
