@@ -69,5 +69,20 @@ def get_critical_events():
     # Преобразуем результат в JSON-ответ
     return jsonify(events)
 
+@app.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    """
+    Эндпоинт для получения отправленных уведомлений.
+    Поддерживает фильтрацию по дате, если передан параметр date.
+    """
+    # Получаем параметр date из запроса
+    date = request.args.get('date')
+
+    # Получаем уведомления из базы данных
+    notifications = get_sent_notifications_by_date(date) if date else get_sent_notifications_by_date()
+
+    # Преобразуем результат в JSON-ответ
+    return jsonify(notifications)
+
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

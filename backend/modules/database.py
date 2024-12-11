@@ -245,18 +245,72 @@ def get_critical_events_by_date(date=None):
 
 def get_last_notification_date():
     """
-    Получение даты последнего уведомления из таблицы telegram_notifications.
+    Получение времени последнего успешно отправленного уведомления из таблицы telegram_notifications.
     
-    :return: Дата последнего уведомления в формате 'YYYY-MM-DD', или None, если уведомлений нет.
+    :return: Максимальная дата отправки (sent_at) в формате 'YYYY-MM-DD HH:MM:SS' или None, если уведомлений нет.
     """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT MAX(timestamp) FROM telegram_notifications
+        SELECT MAX(sent_at) 
+        FROM telegram_notifications 
+        WHERE status = 'sent'
     """)
     
-    last_notification_date = cursor.fetchone()[0]  # Извлекаем дату из результата запроса
+    last_sent_at = cursor.fetchone()[0]  # Извлекаем максимальную дату
     conn.close()
 
-    return last_notification_date
+    return last_sent_at
+
+def get_sent_notifications_by_date(date=None):
+    """
+    Получение отправленных уведомлений из таблицы telegram_notifications.
+    Если дата передана, возвращаются уведомления только за этот день.
+    Если дата не указана, возвращаются все уведомления.
+
+    :param date: Дата в формате 'YYYY-MM-DD' (опционально).
+    :return: Список уведомлений с деталями (ID, сообщение, дата отправки, статус).
+    """
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+
+    if date:
+        query = """
+            SELECT 
+                id,
+                message,
+                sent_at,
+                status
+            FROM telegram_notifications
+            WHERE DATE(sent_at) = ?
+            ORDER BY sent_at DESC
+        """
+        cursor.execute(query, (date,))
+    else:
+        query = """
+            SELECT 
+                id,
+                message,
+                sent_at,
+                status
+            FROM telegram_notifications
+            ORDER BY sent_at DESC
+        """
+        cursor.execute(query)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Преобразуем результаты в список словарей
+    notifications = [
+        {
+            "id": row[0],
+            "message": row[1],
+            "sent_at": row[2],
+            "status": row[3],
+        }
+        for row in rows
+    ]
+
+    return notifications
