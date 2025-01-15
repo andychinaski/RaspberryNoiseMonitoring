@@ -44,8 +44,8 @@ class NoiseAnalyzer:
         # Проверка уровней шума
         if adjusted_noise_level > warning_level:
             if not self.high_noise_start:
-                self.high_noise_start = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Начало превышения
-            elif (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') - self.high_noise_start).total_seconds() > self.checkDuration:
+                self.high_noise_start = datetime.datetime.now()  # Начало превышения
+            elif (datetime.datetime.now() - self.high_noise_start).total_seconds() > self.checkDuration:
                 if adjusted_noise_level > critical_level:
                     # Добавление записи о критическом уровне шума в базу данных
                     insert_warning_event(measurement_id, 'CRITICAL', f"Критический уровень шума держится более {self.checkDuration} секунд")

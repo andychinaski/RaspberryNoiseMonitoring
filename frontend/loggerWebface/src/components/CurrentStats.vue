@@ -93,7 +93,7 @@ export default {
       }
     },
     startPolling() {
-      this.pollingInterval = setInterval(this.fetchNoiseStats, 5000); // Интервал в 5 секунд
+      this.pollingInterval = setInterval(this.fetchNoiseStats, 1000); // Интервал в 5 секунд
     },
     stopPolling() {
       if (this.pollingInterval) {

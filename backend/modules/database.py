@@ -137,10 +137,11 @@ def get_measurements_by_date(date=None):
         cursor.execute("""
             SELECT * FROM measurements
             WHERE DATE(timestamp) = ?
+            ORDER BY timestamp DESC
         """, (date,))
     else:
         # Запрос для выборки всех записей
-        cursor.execute("SELECT * FROM measurements")
+        cursor.execute("SELECT * FROM measurements ORDER BY timestamp DESC")
 
     rows = cursor.fetchall()
     conn.close()

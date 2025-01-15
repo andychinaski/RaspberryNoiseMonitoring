@@ -5,12 +5,17 @@
         <li v-for="log in logs" :key="log.timestamp">
           <template v-if="apiEndpoint === 'measurements'">
             <span class="log-info">
-              {{ log.timestamp }} - Уровень шума: {{ log.noise_level }} дБ
+              {{ new Date(log.timestamp).toLocaleString().replace(',', '') }}  - Уровень шума: {{ log.noise_level }} дБ
             </span>
           </template>
           <template v-else-if="apiEndpoint === 'critical-events'">
             <span class="log-info">
               {{ new Date(log.timestamp).toLocaleString().replace(',', '') }} - Событие: {{ log.type }} ({{ log.info }})
+            </span>
+          </template>
+          <template v-else-if="apiEndpoint === 'notifications'">
+            <span class="log-info">
+              {{ new Date(log.sent_at).toLocaleString().replace(',', '') }} - Отправлено сообщение: {{ log.message}}
             </span>
           </template>
           <v-divider/>
@@ -37,6 +42,7 @@ export default {
     return {
       logs: [],
       selectedDate: new Date().toISOString().split("T")[0], // Сегодняшняя дата
+      pollingInterval: null,
     };
   },
   methods: {
@@ -49,9 +55,22 @@ export default {
         console.error(`Error fetching logs from ${this.apiEndpoint}:`, error);
       }
     },
+    startPolling() {
+      this.pollingInterval = setInterval(this.fetchLogs, 5000); // Интервал в 5 секунд
+    },
+    stopPolling() {
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+        this.pollingInterval = null;
+      }
+    },
   },
   mounted() {
     this.fetchLogs();
+    this.startPolling(); // Запускаем polling при монтировании
+  },
+  beforeDestroy() {
+    this.stopPolling(); // Очищаем интервал при уничтожении компонента
   },
 };
 </script>
@@ -85,6 +104,6 @@ li {
 }
 
 .log-info {
-  color: #0000ff; /* Синий */
+  color: #202020;
 }
 </style>

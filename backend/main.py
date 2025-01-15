@@ -32,10 +32,6 @@ if __name__ == '__main__':
 
     # Запуск мониторинга на 2 минуты
     start_time = time.time()
-    while time.time() - start_time < 1200:  # 120 секунд = 2 минуты
+    while time.time() - start_time < 1200:
         analyzer.analyze_noise()  # Анализируем уровень шума
         time.sleep(5)  # Задержка в 5 секунд между анализами
-    
-    '''notifier = TelegramNotifier('db_path')
-
-    notifier.send_notification('test', 'test', 'test', 'test')'''

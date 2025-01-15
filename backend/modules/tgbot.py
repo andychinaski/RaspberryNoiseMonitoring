@@ -31,11 +31,13 @@ class TelegramNotifier:
         )
 
         try:
+            print("Попытка отправить сообщение")
             # Отправляем уведомление
             asyncio.run(self._async_send_notification(message))
 
             # Сохраняем запись об отправленном уведомлении
             insert_telegram_notification(message, "sent")
+            print("Сообщение отправлено")
 
         except Exception as e:        
             # Сохраняем запись о неудачной отправке уведомления
