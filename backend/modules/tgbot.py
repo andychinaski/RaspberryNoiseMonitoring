@@ -6,12 +6,11 @@ from dotenv import load_dotenv
 from .database import get_last_notification_date, insert_telegram_notification
 
 class TelegramNotifier:
-    def __init__(self, db_path):
+    def __init__(self):
         # Загружаем переменные из .env
         load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
         self.token = os.getenv("TELEGRAM_TOKEN")
         self.chat_id = os.getenv("TELEGRAM_CHAT_ID")
-        self.db_path = db_path
         self.bot = Bot(token=self.token)
 
     def send_notification(self, timestamp, noise_level, event_type, info):

@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import datetime
 
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
 
@@ -58,10 +59,11 @@ def insert_measurement(noise_level):
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
+    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute('''
-    INSERT INTO measurements (noise_level) 
-    VALUES (?)
-    ''', (noise_level,))
+    INSERT INTO measurements (timestamp, noise_level) 
+    VALUES (?, ?)
+    ''', (current_time, noise_level))
 
     conn.commit()
     new_id = cursor.lastrowid  # Получение ID новой записи
@@ -105,10 +107,11 @@ def insert_telegram_notification(message, status="sent"):
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
+    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute('''
-    INSERT INTO telegram_notifications (message, status)
-    VALUES (?, ?)
-    ''', (message, status))
+    INSERT INTO telegram_notifications (message, sent_at, status)
+    VALUES (?, ?, ?)
+    ''', (message, current_time, status))
 
     conn.commit()
     new_id = cursor.lastrowid  # Получение ID новой записи

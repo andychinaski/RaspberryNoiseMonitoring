@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from .database import get_measurements_by_date, get_noise_stats, get_critical_events_by_date
+from .database import get_measurements_by_date, get_noise_stats, get_critical_events_by_date, get_sent_notifications_by_date
 
 app = Flask(__name__)
 CORS(app)  # Разрешаем CORS-запросы

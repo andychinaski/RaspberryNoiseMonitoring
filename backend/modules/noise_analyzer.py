@@ -1,11 +1,13 @@
 import datetime
 from .noise_sensor import NoiseSensor
 from .database import insert_measurement, insert_warning_event
+from .tgbot import TelegramNotifier
 
 class NoiseAnalyzer:
     def __init__(self, config):
         self.config = config
         self.sensor = NoiseSensor()
+        self.notifier = TelegramNotifier()
         self.high_noise_start = None
         self.checkDuration = 10
 
@@ -42,13 +44,15 @@ class NoiseAnalyzer:
         # Проверка уровней шума
         if adjusted_noise_level > warning_level:
             if not self.high_noise_start:
-                self.high_noise_start = datetime.datetime.now()  # Начало превышения
-            elif (datetime.datetime.now() - self.high_noise_start).total_seconds() > self.checkDuration:
+                self.high_noise_start = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Начало превышения
+            elif (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') - self.high_noise_start).total_seconds() > self.checkDuration:
                 if adjusted_noise_level > critical_level:
                     # Добавление записи о критическом уровне шума в базу данных
                     insert_warning_event(measurement_id, 'CRITICAL', f"Критический уровень шума держится более {self.checkDuration} секунд")
+                    self.notifier.send_notification(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), current_noise_level, 'CRITICAL', f"Критический уровень шума держится более {self.checkDuration} секунд")
                 else:
                     # Добавление записи о высоком уровне шума в базу данных
                     insert_warning_event(measurement_id, 'WARNING', f"Высокий уровень шума держится более {self.checkDuration} секунд")
+                    self.notifier.send_notification(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), current_noise_level, 'WARNING', f"Критический уровень шума держится более {self.checkDuration} секунд")
         else:
             self.high_noise_start = None  # Сброс таймера при нормализации
