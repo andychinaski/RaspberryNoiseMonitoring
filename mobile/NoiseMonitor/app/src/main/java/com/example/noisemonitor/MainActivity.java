@@ -1,13 +1,19 @@
 package com.example.noisemonitor;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.noisemonitor.ui.AlertsFragment;
 import com.example.noisemonitor.ui.DeviceFragment;
 import com.example.noisemonitor.ui.HistoryFragment;
 import com.example.noisemonitor.ui.MonitorFragment;
+import com.example.noisemonitor.ui.SettingsDialogFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -16,11 +22,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(navListener);
 
-        // as a default, we want to show the monitor fragment
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MonitorFragment()).commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MonitorFragment()).commit();
+        }
     }
 
     private final BottomNavigationView.OnItemSelectedListener navListener = item -> {
@@ -43,4 +53,20 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            SettingsDialogFragment settingsDialog = new SettingsDialogFragment();
+            settingsDialog.show(getSupportFragmentManager(), "SettingsDialog");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

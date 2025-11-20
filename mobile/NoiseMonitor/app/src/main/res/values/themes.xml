@@ -17,4 +17,10 @@
         <item name="colorSurface">@color/light_surface1</item>
         <item name="colorError">@color/error</item>
     </style>
+
+    <style name="Theme.NoiseMonitor.FullScreenDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
 </resources>
