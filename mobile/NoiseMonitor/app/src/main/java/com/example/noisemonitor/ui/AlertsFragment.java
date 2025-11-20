@@ -2,8 +2,6 @@ package com.example.noisemonitor.ui;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,19 +107,30 @@ public class AlertsFragment extends Fragment {
         String dateString = apiDateFormat.format(selectedDate.getTime());
         boolean sentOnly = sentOnlySwitch.isChecked();
 
-        // Dummy data simulation
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (getActivity() == null) return;
-            getActivity().runOnUiThread(() -> {
-                alertList.clear();
-                alertList.add(new AlertEvent("12:43", "Sent notification of overtemperature"));
-                alertList.add(new AlertEvent("11:12", "System switched to WARNING"));
-                alertList.add(new AlertEvent("09:54", "Noise above normal"));
-                adapter.notifyDataSetChanged();
-                setLoading(false);
-            });
-        }, 1000);
+        apiService.getAlerts(dateString, sentOnly, new ApiService.ApiCallback<List<AlertEvent>>() {
+            @Override
+            public void onSuccess(List<AlertEvent> result) {
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> {
+                    alertList.clear();
+                    alertList.addAll(result);
+                    adapter.notifyDataSetChanged();
+                    setLoading(false);
+                    if (result.isEmpty()) {
+                        Toast.makeText(getContext(), "No alerts found for this day.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
 
+            @Override
+            public void onError(Exception e) {
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> {
+                    setLoading(false);
+                    Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
 
     private void setLoading(boolean isLoading) {

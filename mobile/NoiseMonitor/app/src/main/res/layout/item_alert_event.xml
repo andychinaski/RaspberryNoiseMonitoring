@@ -10,7 +10,7 @@
         android:id="@+id/icon_telegram"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_telegram_sent"
+        android:src="@drawable/ic_telegram"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -23,7 +23,17 @@
         android:textAppearance="?attr/textAppearanceBody2"
         app:layout_constraintStart_toEndOf="@+id/icon_telegram"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="12:43" />
+        tools:text="21.11.2025 00:00:12" />
+
+    <ImageView
+        android:id="@+id/icon_delivery_status"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/text_view_alert_time"
+        app:layout_constraintTop_toTopOf="@+id/text_view_alert_time"
+        app:layout_constraintBottom_toBottomOf="@+id/text_view_alert_time"
+        tools:src="@drawable/ic_status_sent" />
 
     <TextView
         android:id="@+id/text_view_alert_message"
@@ -34,6 +44,6 @@
         app:layout_constraintStart_toStartOf="@+id/text_view_alert_time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_alert_time"
-        tools:text="Sent notification of overtemperature" />
+        tools:text="Уровень шума: 76 дБ. Тип: WARNING. Информация: Высокий уровень шума держится более 10 секунд" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

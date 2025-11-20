@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,8 +35,14 @@ public class AlertsAdapter extends RecyclerView.Adapter<AlertsAdapter.AlertViewH
     @Override
     public void onBindViewHolder(@NonNull AlertViewHolder holder, int position) {
         AlertEvent event = alertList.get(position);
-        holder.time.setText(event.getTime());
+        holder.time.setText(event.getFormattedSentAt());
         holder.message.setText(event.getMessage());
+
+        if ("sent".equalsIgnoreCase(event.getStatus())) {
+            holder.deliveryStatus.setImageResource(R.drawable.ic_status_sent);
+        } else {
+            holder.deliveryStatus.setImageResource(R.drawable.ic_status_failed);
+        }
     }
 
     @Override
@@ -45,11 +52,13 @@ public class AlertsAdapter extends RecyclerView.Adapter<AlertsAdapter.AlertViewH
 
     public static class AlertViewHolder extends RecyclerView.ViewHolder {
         TextView time, message;
+        ImageView deliveryStatus;
 
         public AlertViewHolder(@NonNull View itemView) {
             super(itemView);
             time = itemView.findViewById(R.id.text_view_alert_time);
             message = itemView.findViewById(R.id.text_view_alert_message);
+            deliveryStatus = itemView.findViewById(R.id.icon_delivery_status);
         }
     }
 }
