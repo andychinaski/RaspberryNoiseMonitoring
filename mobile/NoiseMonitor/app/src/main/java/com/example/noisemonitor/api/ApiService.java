@@ -47,21 +47,88 @@ public class ApiService {
     }
 
     public void getDeviceData(ApiCallback<Device> callback) {
-        // ... (implementation is correct)
+        executorService.execute(() -> {
+            HttpURLConnection connection = null;
+            try {
+                String baseUrl = getBaseUrl();
+                URL url = new URL(baseUrl + "/device-info");
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder content = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+
+                    JSONObject jsonObject = new JSONObject(content.toString());
+                    Device device = new Device(jsonObject);
+                    callback.onSuccess(device);
+                } else {
+                    throw new Exception("HTTP Error: " + connection.getResponseCode());
+                }
+            } catch (Exception e) {
+                callback.onError(e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        });
     }
 
     public void getHistoryEvents(@NonNull String date, boolean onlyCritical, ApiCallback<List<HistoryEvent>> callback) {
-        // ... (implementation is correct)
+        executorService.execute(() -> {
+            HttpURLConnection connection = null;
+            try {
+                String baseUrl = getBaseUrl();
+                int criticalFlag = onlyCritical ? 1 : 0;
+                URL url = new URL(baseUrl + "/events?date=" + date + "&only_critical=" + criticalFlag);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder content = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+
+                    JSONArray jsonArray = new JSONArray(content.toString());
+                    List<HistoryEvent> events = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        events.add(new HistoryEvent(jsonArray.getJSONObject(i)));
+                    }
+                    callback.onSuccess(events);
+                } else {
+                    throw new Exception("HTTP Error: " + connection.getResponseCode());
+                }
+            } catch (Exception e) {
+                callback.onError(e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        });
     }
 
     public void getAlerts(@NonNull String date, boolean successfullySent, ApiCallback<List<AlertEvent>> callback) {
         executorService.execute(() -> {
+            HttpURLConnection connection = null;
             try {
                 String baseUrl = getBaseUrl();
-                // The API doesn't seem to use the 'successfullySent' flag, so we ignore it for now.
                 URL url = new URL(baseUrl + "/notifications?date=" + date);
-
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setConnectTimeout(5000);
                 connection.setReadTimeout(5000);
@@ -86,6 +153,10 @@ public class ApiService {
                 }
             } catch (Exception e) {
                 callback.onError(e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
         });
     }
