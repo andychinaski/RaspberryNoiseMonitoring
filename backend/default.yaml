@@ -4,6 +4,8 @@ noise_thresholds:
   night_warning: 30  # Пороговое значение для ночного шума (предупреждение)
   night_critical: 45  # Критический уровень ночного шума
 
+measurement_frequency: 5  # Частота измерений в секундах
+
 delta:
   stalin: 35
   modern: 20
