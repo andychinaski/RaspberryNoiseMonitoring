@@ -23,17 +23,21 @@ class TelegramNotifier:
 
         # Формируем сообщение
         message = (
-            f"*Критическое событие*\n"
-            f"Время: {timestamp}\n"
             f"Уровень шума: {noise_level} дБ\n"
             f"Тип: {event_type}\n"
             f"Информация: {info}"
         )
 
+        telegram_message = (
+            f"*Критическое событие*\n"
+            f"Время: {timestamp}\n"
+            f"{message}"
+        )
+
         try:
             print("Попытка отправить сообщение")
             # Отправляем уведомление
-            asyncio.run(self._async_send_notification(message))
+            asyncio.run(self._async_send_notification(telegram_message))
 
             # Сохраняем запись об отправленном уведомлении
             insert_telegram_notification(message, "sent")
