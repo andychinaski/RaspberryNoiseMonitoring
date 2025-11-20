@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from .database import get_measurements_by_date, get_noise_stats, get_critical_events_by_date, get_sent_notifications_by_date
+from .database import get_noise_stats, get_sent_notifications_by_date, get_events_by_date
 import time
 import datetime
 from pathlib import Path
@@ -30,22 +30,19 @@ def _get_time_of_day():
 # Время старта приложения для расчёта uptime
 _app_start_time = time.time()
 
+# Устаревшая версия эндпоинта для получения измерений
 @app.route('/api/measurements', methods=['GET'])
 def get_measurements():
-    # Получаем параметр date из запроса
-    date = request.args.get('date')  
-    
-    # Если дата передана, фильтруем записи по дате
-    measurements = get_measurements_by_date(date) if date else get_measurements_by_date()
-    
-    # Преобразуем результат в список словарей для JSON ответа
+    date = request.args.get('date')
+    measurements = get_events_by_date(date=date, only_critical=False)
+
     data = [
         {
-            'id': measurement[0],
-            'timestamp': measurement[1],
-            'noise_level': measurement[2]
+            'id': m['event_id'],
+            'timestamp': m['timestamp'],
+            'noise_level': m['noise_level']
         }
-        for measurement in measurements
+        for m in measurements
     ]
     return jsonify(data)
 
@@ -79,20 +76,31 @@ def get_noise_stats_route():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Устаревшая версия эндпоинта для получения критических событий
 @app.route('/api/critical-events', methods=['GET'])
 def get_critical_events():
     """
     Эндпоинт для получения критических событий.
-    Поддерживает фильтрацию по дате, если передан параметр date.
+    Поддерживает фильтрацию по дате (date=YYYY-MM-DD).
     """
-    # Получаем параметр date из запроса
     date = request.args.get('date')
 
-    # Получаем критические события из базы данных
-    events = get_critical_events_by_date(date) if date else get_critical_events_by_date()
+    # Забираем только критические события
+    rows = get_events_by_date(date=date, only_critical=True)
 
-    # Преобразуем результат в JSON-ответ
-    return jsonify(events)
+    # Преобразуем в JSON-структуру
+    data = [
+        {
+            "id": row['event_id'],
+            "timestamp": row['timestamp'],
+            "noise_level": row['noise_level'],
+            "event_type": row['event_type'],
+            "info": row['info']
+        }
+        for row in rows
+    ]
+
+    return jsonify(data)
 
 @app.route('/api/notifications', methods=['GET'])
 def get_notifications():
@@ -136,6 +144,37 @@ def get_device_info():
         "warning_threshold": warning,
         "critical_threshold": critical
     })
+
+@app.route('/api/events', methods=['GET'])
+def get_events():
+    """
+    Эндпоинт получения всех событий/измерений.
+    Поддерживает параметры:
+      - date=YYYY-MM-DD (опционально)
+      - only_critical=true/false/1/0 (опционально)
+    """
+    date = request.args.get('date')
+
+    # Нормальное преобразование флага критичности
+    only_critical_param = request.args.get('only_critical', 'false').lower()
+    only_critical = only_critical_param in ('1', 'true', 'yes', 'y')
+
+    # Получаем данные
+    rows = get_event_by_date(date=date, only_critical=only_critical)
+
+    # Приводим к единому читаемому JSON-формату
+    data = [
+        {
+            "id": row["event_id"],
+            "timestamp": row["timestamp"],
+            "noise_level": row["noise_level"],
+            "type": row["event_type"],
+            "info": row.get("info")  # если есть поле info — добавляем, нет — будет None
+        }
+        for row in rows
+    ]
+
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

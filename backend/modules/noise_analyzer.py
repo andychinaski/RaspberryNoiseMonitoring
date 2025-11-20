@@ -1,6 +1,6 @@
 import datetime
 from .noise_sensor import NoiseSensor
-from .database import insert_measurement, insert_warning_event
+from .database import insert_measurement
 from .tgbot import TelegramNotifier
 
 class NoiseAnalyzer:
@@ -30,29 +30,55 @@ class NoiseAnalyzer:
     def analyze_noise(self):
         current_time_of_day = self.get_time_of_day()
         current_noise_level = self.get_current_noise_level()
+
         apartment_type = self.config['house_type']
         delta = self.config['delta'][apartment_type]
-
         adjusted_noise_level = current_noise_level - delta
+
         thresholds = self.config['noise_thresholds']
         warning_level = thresholds[f'{current_time_of_day}_warning']
         critical_level = thresholds[f'{current_time_of_day}_critical']
 
-        # Вставляем измерение в базу данных
-        measurement_id = insert_measurement(current_noise_level)
+        # Базовые значения события
+        event_type = 'NORMAL'
+        info = None
 
-        # Проверка уровней шума
-        if adjusted_noise_level > warning_level:
-            if not self.high_noise_start:
-                self.high_noise_start = datetime.datetime.now()  # Начало превышения
-            elif (datetime.datetime.now() - self.high_noise_start).total_seconds() > self.checkDuration:
-                if adjusted_noise_level > critical_level:
-                    # Добавление записи о критическом уровне шума в базу данных
-                    insert_warning_event(measurement_id, 'CRITICAL', f"Критический уровень шума держится более {self.checkDuration} секунд")
-                    self.notifier.send_notification(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), current_noise_level, 'CRITICAL', f"Критический уровень шума держится более {self.checkDuration} секунд")
-                else:
-                    # Добавление записи о высоком уровне шума в базу данных
-                    insert_warning_event(measurement_id, 'WARNING', f"Высокий уровень шума держится более {self.checkDuration} секунд")
-                    self.notifier.send_notification(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), current_noise_level, 'WARNING', f"Критический уровень шума держится более {self.checkDuration} секунд")
+        now = datetime.datetime.now()
+
+        # --- Определяем тип события ---
+        if adjusted_noise_level > critical_level:
+            event_type = 'CRITICAL'
+        elif adjusted_noise_level > warning_level:
+            event_type = 'WARNING'
         else:
-            self.high_noise_start = None  # Сброс таймера при нормализации
+            # Шум нормализовался, сбрасываем таймер
+            self.high_noise_start = None
+
+        # --- Логика превышения во времени ---
+        if event_type in ('WARNING', 'CRITICAL'):
+            if not self.high_noise_start:
+                # начало превышения
+                self.high_noise_start = now
+            else:
+                duration = (now - self.high_noise_start).total_seconds()
+                if duration > self.checkDuration:
+                    # превышение длительное — формируем сообщение
+                    if event_type == 'CRITICAL':
+                        info = f"Критический уровень шума держится более {int(duration)} секунд"
+                    else:
+                        info = f"Высокий уровень шума держится более {int(duration)} секунд"
+
+                    # Отправка уведомления
+                    self.notifier.send_notification(
+                        now.strftime('%Y-%m-%d %H:%M:%S'),
+                        current_noise_level,
+                        event_type,
+                        info
+                    )
+
+        # --- Вставка измерения в БД: одно место, единый формат ---
+        measurement_id = insert_measurement(
+            noise_level=current_noise_level,
+            event=event_type,
+            info=info
+        )

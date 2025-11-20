@@ -10,7 +10,7 @@
           </template>
           <template v-else-if="apiEndpoint === 'critical-events'">
             <span class="log-info">
-              {{ new Date(log.timestamp).toLocaleString().replace(',', '') }} - Событие: {{ log.type }} ({{ log.info }})
+              {{ new Date(log.timestamp).toLocaleString().replace(',', '') }} - Событие: {{ log.event_type }} ({{ log.info }})
             </span>
           </template>
           <template v-else-if="apiEndpoint === 'notifications'">
