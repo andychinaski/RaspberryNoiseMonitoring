@@ -23,6 +23,11 @@
     <string name="undefined">undefined</string>
     <string name="placeholder_value">--</string>
 
+    <string name="critical_events_only">Critical events only</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="select_date">Select Date</string>
+
     <string-array name="auto_refresh_entries">
         <item>none</item>
         <item>5 sec</item>
