@@ -22,16 +22,18 @@ class TelegramNotifier:
             return
 
         # Формируем сообщение
-        message = (
-            f"Уровень шума: {noise_level} дБ\n"
-            f"Тип: {event_type}\n"
+        db_message = (
+            f"Уровень шума: {noise_level} дБ. "
+            f"Тип: {event_type}. "
             f"Информация: {info}"
         )
 
         telegram_message = (
             f"*Критическое событие*\n"
             f"Время: {timestamp}\n"
-            f"{message}"
+            f"Уровень шума: {noise_level} дБ\n"
+            f"Тип: {event_type}\n"
+            f"Информация: {info}"
         )
 
         try:
@@ -40,12 +42,12 @@ class TelegramNotifier:
             asyncio.run(self._async_send_notification(telegram_message))
 
             # Сохраняем запись об отправленном уведомлении
-            insert_telegram_notification(message, "sent")
+            insert_telegram_notification(db_message, "sent")
             print("Сообщение отправлено")
 
         except Exception as e:        
             # Сохраняем запись о неудачной отправке уведомления
-            insert_telegram_notification(message, "failed")
+            insert_telegram_notification(db_message, "failed")
 
     async def _async_send_notification(self, message):
         """
