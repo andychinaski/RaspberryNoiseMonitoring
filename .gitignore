@@ -81,3 +81,5 @@ google-services.json
 
 # External native build folder generated in the .externalNativeBuild directory
 .externalNativeBuild/
+
+*.db
