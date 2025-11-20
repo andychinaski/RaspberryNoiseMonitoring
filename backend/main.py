@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     # Запуск сервера Flask в фоновом режиме
     from threading import Thread
-    server_thread = Thread(target=app.run, kwargs={'port': 5000, 'debug': False})
+    server_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 5000, 'debug': False})
     server_thread.start()
 
     # Запуск мониторинга на 2 минуты

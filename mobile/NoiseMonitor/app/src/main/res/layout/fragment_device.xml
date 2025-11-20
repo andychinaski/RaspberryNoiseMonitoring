@@ -7,6 +7,24 @@
     android:padding="16dp"
     tools:context=".ui.DeviceFragment">
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/content_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="label_device,value_device_name,label_status,icon_status,value_status,label_uptime,value_uptime,separator,label_frequency,value_frequency,label_warning,value_warning,label_critical,value_critical"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible"/>
+
     <!-- Device -->
     <TextView
         android:id="@+id/label_device"
