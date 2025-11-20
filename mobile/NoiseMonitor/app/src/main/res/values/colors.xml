@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Light Theme -->
+    <!-- Original Light Theme Colors -->
     <color name="light_background">#FFFFFF</color>
     <color name="light_surface1">#FFFFFF</color>
     <color name="light_surface2">#E8EAF6</color>
@@ -8,18 +8,29 @@
     <color name="light_primary_text">#212121</color>
     <color name="light_secondary_text">#757575</color>
 
-    <!-- Dark Theme -->
-    <color name="dark_background">#121212</color>
-    <color name="dark_surface1">#212121</color>
-    <color name="dark_surface2">#424242</color>
-    <color name="dark_accent_card">#7986CB</color>
-    <color name="dark_primary_text">#FFFFFF</color>
-    <color name="dark_secondary_text">#BDBDBD</color>
+    <!-- New Dark Theme Colors from UI Kit -->
+    <color name="dark_background_new">#1A1B22</color>
+    <color name="dark_surface_new">#242530</color>
+    <color name="dark_accent_new">#336DFF</color>
+    <color name="dark_primary_text_new">#FFFFFF</color>
+    <color name="dark_secondary_text_new">#9E9FAA</color>
+    <color name="dark_divider_new">#3A3B49</color>
 
-    <!-- Additional Colors -->
+    <!-- Original Additional Colors -->
     <color name="success">#4CAF50</color>
     <color name="warning">#FFC107</color>
     <color name="error">#F44336</color>
     <color name="divider_color">#1F000000</color> <!-- 12% black -->
     <color name="telegram_blue">#37AEE2</color>
+
+    <!-- Deprecated colors (can be removed later) -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="purple_primary">#FF6200EE</color>
+
 </resources>

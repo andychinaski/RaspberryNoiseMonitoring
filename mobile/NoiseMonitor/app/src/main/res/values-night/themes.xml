@@ -2,19 +2,51 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Theme.NoiseMonitor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Font Family -->
+        <item name="android:fontFamily">@font/manrope</item>
+
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/dark_accent_card</item>
-        <item name="colorPrimaryVariant">@color/dark_accent_card</item>
-        <item name="colorOnPrimary">@color/dark_primary_text</item>
+        <item name="colorPrimary">@color/dark_accent_new</item>
+        <item name="colorPrimaryVariant">@color/dark_accent_new</item>
+        <item name="colorOnPrimary">@color/dark_primary_text_new</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/dark_accent_card</item>
-        <item name="colorSecondaryVariant">@color/dark_accent_card</item>
-        <item name="colorOnSecondary">@color/dark_primary_text</item>
+        <item name="colorSecondary">@color/dark_accent_new</item>
+        <item name="colorSecondaryVariant">@color/dark_accent_new</item>
+        <item name="colorOnSecondary">@color/dark_primary_text_new</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@color/dark_surface_new</item>
         <!-- Customize your theme here. -->
-        <item name="android:colorBackground">@color/dark_background</item>
-        <item name="colorSurface">@color/dark_surface1</item>
+        <item name="android:colorBackground">@color/dark_background_new</item>
+        <item name="colorSurface">@color/dark_surface_new</item>
         <item name="colorError">@color/error</item>
+
+        <!-- Custom text colors -->
+        <item name="android:textColorPrimary">@color/dark_primary_text_new</item>
+        <item name="android:textColorSecondary">@color/dark_secondary_text_new</item>
+
+        <!-- Custom divider color -->
+        <item name="android:listDivider">@color/dark_divider_new</item>
+
+        <!-- Set BottomNavigationView style -->
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
+    </style>
+
+    <!-- Custom BottomNavigationView Style for Dark Theme -->
+    <style name="Widget.App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:background">@color/dark_surface_new</item>
+    </style>
+
+    <style name="Theme.NoiseMonitor.FullScreenDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:fontFamily">@font/manrope</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@color/dark_background_new</item>
+        <item name="android:statusBarColor">@color/dark_surface_new</item>
+        
+        <!-- Re-apply main theme colors to ensure consistency -->
+        <item name="colorPrimary">@color/dark_accent_new</item>
+        <item name="colorOnPrimary">@color/dark_primary_text_new</item>
+        <item name="colorSurface">@color/dark_surface_new</item>
+        <item name="android:textColorPrimary">@color/dark_primary_text_new</item>
+        <item name="android:textColorSecondary">@color/dark_secondary_text_new</item>
     </style>
 </resources>

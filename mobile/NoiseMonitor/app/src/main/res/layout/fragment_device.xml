@@ -43,7 +43,7 @@
         android:textAppearance="?attr/textAppearanceBody1"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/label_device"
-        app:layout_constraintStart_toEndOf="@id/label_device"
+        app:layout_constraintStart_toEndOf="@+id/label_device"
         app:layout_constraintTop_toTopOf="@+id/label_device"
         tools:text="Raspberry Pi Emulator" />
 
@@ -187,6 +187,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="@string/update_info"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.NoiseMonitor.Button"
         app:layout_constraintBottom_toTopOf="@id/bottom_buttons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -208,7 +209,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="@string/reboot_device" />
+            android:text="@string/reboot_device"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.NoiseMonitor.Button" />
 
         <Button
             android:id="@+id/button_shutdown_sensor"
@@ -217,7 +219,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="@string/turn_off_sensor" />
+            android:text="@string/turn_off_sensor"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.NoiseMonitor.Button" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline

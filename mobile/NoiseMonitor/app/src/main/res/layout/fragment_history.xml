@@ -29,30 +29,41 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ProgressBar
-        android:id="@+id/progress_bar_history"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@+id/recycler_view_history"
-        app:layout_constraintBottom_toBottomOf="@+id/recycler_view_history"
-        app:layout_constraintStart_toStartOf="@+id/recycler_view_history"
-        app:layout_constraintEnd_toEndOf="@+id/recycler_view_history" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_history"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/history_card_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/recycler_view_border"
-        android:padding="8dp"
+        app:cardElevation="0dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.NoiseMonitor.Card"
         app:layout_constraintBottom_toTopOf="@+id/date_buttons_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_refresh"
-        tools:listitem="@layout/item_history_event" />
+        app:layout_constraintTop_toBottomOf="@+id/button_refresh">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_history"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp"
+                tools:listitem="@layout/item_history_event" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar_history"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:id="@+id/date_buttons_layout"
@@ -72,7 +83,8 @@
             android:layout_weight="1"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="@string/today" />
+            android:text="@string/today"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.NoiseMonitor.Button" />
 
         <Button
             android:id="@+id/button_yesterday"
@@ -83,7 +95,8 @@
             android:layout_weight="1"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="@string/yesterday" />
+            android:text="@string/yesterday"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.NoiseMonitor.Button" />
 
         <Button
             android:id="@+id/button_select_date"
@@ -93,7 +106,8 @@
             android:layout_weight="1"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="@string/select_date" />
+            android:text="@string/select_date"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.NoiseMonitor.Button" />
 
     </LinearLayout>
 

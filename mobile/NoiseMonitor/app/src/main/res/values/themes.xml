@@ -2,6 +2,9 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Theme.NoiseMonitor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Font Family -->
+        <item name="android:fontFamily">@font/manrope</item>
+
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/light_accent_card</item>
         <item name="colorPrimaryVariant">@color/light_accent_card</item>
@@ -18,7 +21,20 @@
         <item name="colorError">@color/error</item>
     </style>
 
+    <!-- Shape Appearance for Rounded Cards/Tables -->
+    <style name="ShapeAppearance.NoiseMonitor.Card" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <!-- Shape Appearance for Rounded Buttons -->
+    <style name="ShapeAppearance.NoiseMonitor.Button" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+
     <style name="Theme.NoiseMonitor.FullScreenDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:fontFamily">@font/manrope</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowBackground">?android:attr/colorBackground</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
