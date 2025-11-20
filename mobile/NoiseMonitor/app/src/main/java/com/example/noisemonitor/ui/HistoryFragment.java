@@ -2,11 +2,10 @@ package com.example.noisemonitor.ui;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,17 +16,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.noisemonitor.R;
+import com.example.noisemonitor.api.ApiService;
 import com.example.noisemonitor.api.HistoryEvent;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class HistoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private HistoryAdapter adapter;
     private final List<HistoryEvent> eventList = new ArrayList<>();
+    private ApiService apiService;
+    private ProgressBar progressBar;
+    private SwitchMaterial criticalOnlySwitch;
+
+    private Calendar selectedDate = Calendar.getInstance();
+    private final SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     @Nullable
     @Override
@@ -39,62 +48,93 @@ public class HistoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        setupRecyclerView(view);
-        setupButtons(view);
+        apiService = ApiService.getInstance(requireContext());
+        bindViews(view);
+        setupRecyclerView();
+        setupButtons();
 
-        fetchHistoryData(); // Initial data fetch
+        fetchHistoryData(); // Initial data fetch for today
     }
 
-    private void setupRecyclerView(View view) {
+    private void bindViews(View view) {
         recyclerView = view.findViewById(R.id.recycler_view_history);
+        progressBar = view.findViewById(R.id.progress_bar_history);
+        criticalOnlySwitch = view.findViewById(R.id.switch_critical_only);
+    }
+
+    private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
-
-        // Add dividers
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(requireContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
-
         adapter = new HistoryAdapter(requireContext(), eventList);
         recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), layoutManager.getOrientation()));
     }
 
-    private void setupButtons(View view) {
-        view.findViewById(R.id.button_refresh).setOnClickListener(v -> fetchHistoryData());
-        view.findViewById(R.id.button_today).setOnClickListener(v -> Toast.makeText(requireContext(), "Fetching today's data...", Toast.LENGTH_SHORT).show());
-        view.findViewById(R.id.button_yesterday).setOnClickListener(v -> Toast.makeText(requireContext(), "Fetching yesterday's data...", Toast.LENGTH_SHORT).show());
-        view.findViewById(R.id.button_select_date).setOnClickListener(v -> showDatePicker());
+    private void setupButtons() {
+        getView().findViewById(R.id.button_refresh).setOnClickListener(v -> fetchHistoryData());
+        criticalOnlySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> fetchHistoryData());
+
+        getView().findViewById(R.id.button_today).setOnClickListener(v -> {
+            selectedDate = Calendar.getInstance();
+            fetchHistoryData();
+        });
+
+        getView().findViewById(R.id.button_yesterday).setOnClickListener(v -> {
+            selectedDate = Calendar.getInstance();
+            selectedDate.add(Calendar.DAY_OF_YEAR, -1);
+            fetchHistoryData();
+        });
+
+        getView().findViewById(R.id.button_select_date).setOnClickListener(v -> showDatePicker());
     }
 
     private void showDatePicker() {
-        Calendar cal = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 requireContext(),
                 (datePicker, year, month, day) -> {
-                    String selectedDate = day + "/" + (month + 1) + "/" + year;
-                    Toast.makeText(requireContext(), "Fetching data for: " + selectedDate, Toast.LENGTH_SHORT).show();
+                    selectedDate.set(year, month, day);
+                    fetchHistoryData();
                 },
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
         );
         datePickerDialog.show();
     }
 
     private void fetchHistoryData() {
-        if (getContext() == null) return; // Extra safety check
-        Toast.makeText(requireContext(), "Updating...", Toast.LENGTH_SHORT).show();
-        // --- API Call Simulation ---
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            eventList.clear();
-            // Add dummy data
-            eventList.add(new HistoryEvent("12:43", 76, HistoryEvent.Status.CRITICAL));
-            eventList.add(new HistoryEvent("12:40", 54, HistoryEvent.Status.NORMAL));
-            eventList.add(new HistoryEvent("12:35", 68, HistoryEvent.Status.WARNING));
-            eventList.add(new HistoryEvent("10:10", 65, HistoryEvent.Status.NORMAL));
-            if (adapter != null) {
-                adapter.notifyDataSetChanged();
+        setLoading(true);
+        String dateString = apiDateFormat.format(selectedDate.getTime());
+        boolean criticalOnly = criticalOnlySwitch.isChecked();
+
+        apiService.getHistoryEvents(dateString, criticalOnly, new ApiService.ApiCallback<List<HistoryEvent>>() {
+            @Override
+            public void onSuccess(List<HistoryEvent> result) {
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> {
+                    eventList.clear();
+                    eventList.addAll(result);
+                    adapter.notifyDataSetChanged();
+                    setLoading(false);
+                    if (result.isEmpty()) {
+                        Toast.makeText(getContext(), "No events found for this day.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-        }, 1000);
+
+            @Override
+            public void onError(Exception e) {
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> {
+                    setLoading(false);
+                    Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    private void setLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
     }
 }

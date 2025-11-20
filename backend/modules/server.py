@@ -160,7 +160,7 @@ def get_events():
     only_critical = only_critical_param in ('1', 'true', 'yes', 'y')
 
     # Получаем данные
-    rows = get_event_by_date(date=date, only_critical=only_critical)
+    rows = get_events_by_date(date=date, only_critical=only_critical)
 
     # Приводим к единому читаемому JSON-формату
     data = [

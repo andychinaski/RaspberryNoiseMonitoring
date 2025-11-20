@@ -9,6 +9,7 @@
     android:paddingEnd="8dp"
     android:paddingBottom="12dp">
 
+    <!-- Time - anchored to the start -->
     <TextView
         android:id="@+id/text_view_time"
         android:layout_width="wrap_content"
@@ -17,25 +18,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="12:43" />
+        tools:text="20.11.2025 23:08:40" />
 
-    <TextView
-        android:id="@+id/text_view_db_level"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceBody1"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="76 dB" />
-
+    <!-- Status Text - anchored to the end -->
     <TextView
         android:id="@+id/text_view_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="70dp" 
+        android:minWidth="70dp"
         android:gravity="start"
         android:textAppearance="?attr/textAppearanceBody2"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -43,6 +33,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="CRITICAL" />
 
+    <!-- Status Indicator - anchored to the left of Status Text -->
     <ImageView
         android:id="@+id/image_view_status_indicator"
         android:layout_width="8dp"
@@ -52,5 +43,21 @@
         app:layout_constraintEnd_toStartOf="@id/text_view_status"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/ic_status_offline" />
+
+    <!-- dB Level - placed in the space between time and status indicator -->
+    <TextView
+        android:id="@+id/text_view_db_level"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_horizontal"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app.layout_constraintStart_toEndOf="@id/text_view_time"
+        app:layout_constraintEnd_toStartOf="@id/image_view_status_indicator"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="76 dB" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
