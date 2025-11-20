@@ -15,8 +15,8 @@ import java.util.concurrent.Executors;
 public class ApiService {
 
     private static final String PREFS_NAME = "NoiseMonitorPrefs";
-    private static final String KEY_API_URL = "api_url";
-    private static final String DEFAULT_API_URL = "http://192.168.0.10:8000"; // Fallback URL
+    private static final String KEY_API_URL = "api"; // The key for SharedPreferences
+    private static final String DEFAULT_API_URL = "http://192.168.0.10:8000"; // Default URL without /api
 
     private static volatile ApiService INSTANCE;
     private final ExecutorService executorService;
@@ -48,7 +48,8 @@ public class ApiService {
             try {
                 SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
                 String baseUrl = prefs.getString(KEY_API_URL, DEFAULT_API_URL);
-                URL url = new URL(baseUrl + "/api/device-info"); // Correct endpoint
+                // Construct the full URL by adding /api here
+                URL url = new URL(baseUrl + "/" + KEY_API_URL + "/device-info");
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
@@ -67,13 +68,11 @@ public class ApiService {
 
                     JSONObject jsonObject = new JSONObject(content.toString());
                     Device device = new Device(jsonObject);
-                    // Switch to the main thread to deliver the result
                     callback.onSuccess(device);
                 } else {
                     throw new Exception("HTTP Error: " + responseCode);
                 }
             } catch (Exception e) {
-                // Switch to the main thread to deliver the error
                 callback.onError(e);
             }
         });

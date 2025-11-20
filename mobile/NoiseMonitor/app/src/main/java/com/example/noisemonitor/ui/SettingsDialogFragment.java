@@ -25,7 +25,7 @@ public class SettingsDialogFragment extends DialogFragment {
     private static final String KEY_PUSH_NOTIFICATIONS = "push_notifications";
     private static final String KEY_AUTO_REFRESH_POSITION = "auto_refresh_position";
     private static final String KEY_THEME_POSITION = "theme_position";
-    private static final String KEY_API_URL = "api_url";
+    private static final String KEY_API_URL = "api"; // Changed key
 
     private SwitchMaterial switchPush;
     private Spinner spinnerAutoRefresh;
