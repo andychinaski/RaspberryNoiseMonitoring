@@ -8,4 +8,17 @@
     <string name="theme">Theme</string>
     <string name="api_server_url">API Server URL</string>
     <string name="api_server_url_hint">http://192.168.0.10:8000</string>
+
+    <string-array name="auto_refresh_entries">
+        <item>none</item>
+        <item>5 sec</item>
+        <item>10 sec</item>
+        <item>20 sec</item>
+        <item>30 sec</item>
+    </string-array>
+
+    <string-array name="theme_entries">
+        <item>Светлая</item>
+        <item>Темная</item>
+    </string-array>
 </resources>
