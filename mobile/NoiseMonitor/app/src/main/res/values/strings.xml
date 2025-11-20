@@ -9,6 +9,20 @@
     <string name="api_server_url">API Server URL</string>
     <string name="api_server_url_hint">http://192.168.0.10:8000</string>
 
+    <string name="device_info_title">Device:</string>
+    <string name="device_status">Status:</string>
+    <string name="device_status_online">ONLINE</string>
+    <string name="device_status_offline">OFFLINE</string>
+    <string name="device_uptime">Uptime:</string>
+    <string name="measurement_frequency">Measurement Frequency:</string>
+    <string name="warning_threshold">Warning Threshold:</string>
+    <string name="critical_threshold">Critical Threshold:</string>
+    <string name="update_info">Update Info</string>
+    <string name="reboot_device">Reboot Device</string>
+    <string name="turn_off_sensor">Turn Off Sensor</string>
+    <string name="undefined">undefined</string>
+    <string name="placeholder_value">--</string>
+
     <string-array name="auto_refresh_entries">
         <item>none</item>
         <item>5 sec</item>
@@ -18,7 +32,7 @@
     </string-array>
 
     <string-array name="theme_entries">
-        <item>Светлая</item>
-        <item>Темная</item>
+        <item>Light</item>
+        <item>Dark</item>
     </string-array>
 </resources>
