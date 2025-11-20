@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.NoiseMonitor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/dark_accent_card</item>
+        <item name="colorPrimaryVariant">@color/dark_accent_card</item>
+        <item name="colorOnPrimary">@color/dark_primary_text</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/dark_accent_card</item>
+        <item name="colorSecondaryVariant">@color/dark_accent_card</item>
+        <item name="colorOnSecondary">@color/dark_primary_text</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <item name="android:colorBackground">@color/dark_background</item>
+        <item name="colorSurface">@color/dark_surface1</item>
+        <item name="colorError">@color/error</item>
+    </style>
+</resources>
