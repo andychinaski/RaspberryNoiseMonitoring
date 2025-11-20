@@ -27,6 +27,7 @@
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
     <string name="select_date">Select Date</string>
+    <string name="successfully_sent">Successfully sent</string>
 
     <string-array name="auto_refresh_entries">
         <item>none</item>

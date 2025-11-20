@@ -51,7 +51,6 @@ public class ApiService {
             try {
                 String baseUrl = getBaseUrl();
                 URL url = new URL(baseUrl + "/device-info");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 // ... (rest of the logic is the same)
             } catch (Exception e) {
                 callback.onError(e);
@@ -93,6 +92,12 @@ public class ApiService {
                 callback.onError(e);
             }
         });
+    }
+
+    public void getAlerts(@NonNull String date, boolean successfullySent, ApiCallback<List<AlertEvent>> callback) {
+        // This is a placeholder. In a real app, you would make a network request.
+        // For now, it just returns an empty list successfully.
+        executorService.execute(() -> callback.onSuccess(new ArrayList<>()));
     }
 
     private String getBaseUrl() {
