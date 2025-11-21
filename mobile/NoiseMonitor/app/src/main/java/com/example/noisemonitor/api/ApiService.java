@@ -161,6 +161,42 @@ public class ApiService {
         });
     }
 
+    public void getNoiseStats(@NonNull String date, ApiCallback<NoiseStats> callback) {
+        executorService.execute(() -> {
+            HttpURLConnection connection = null;
+            try {
+                String baseUrl = getBaseUrl();
+                URL url = new URL(baseUrl + "/noise-stats?date=" + date);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder content = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        content.append(inputLine);
+                    }
+                    in.close();
+
+                    JSONObject jsonObject = new JSONObject(content.toString());
+                    NoiseStats stats = new NoiseStats(jsonObject);
+                    callback.onSuccess(stats);
+                } else {
+                    throw new Exception("HTTP Error: " + connection.getResponseCode());
+                }
+            } catch (Exception e) {
+                callback.onError(e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        });
+    }
+
     private String getBaseUrl() {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getString(KEY_API, DEFAULT_API_URL) + "/api";
