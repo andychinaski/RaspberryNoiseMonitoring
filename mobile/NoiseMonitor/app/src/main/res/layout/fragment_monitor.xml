@@ -22,7 +22,7 @@
         android:id="@+id/content_group_monitor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="text_view_current_db,image_view_current_status_indicator,text_view_current_status,graph_placeholder,text_view_graph_period,summary_card" />
+        app:constraint_referenced_ids="text_view_current_db,image_view_current_status_indicator,text_view_current_status,line_chart_view,text_view_graph_period,summary_card" />
 
     <!-- Current dB Level -->
     <TextView
@@ -60,13 +60,12 @@
         app:layout_constraintTop_toBottomOf="@+id/text_view_current_db"
         tools:text="CRITICAL" />
 
-    <!-- Graph Placeholder -->
-    <View
-        android:id="@+id/graph_placeholder"
+    <!-- Custom Line Chart -->
+    <com.example.noisemonitor.ui.SimpleLineChartView
+        android:id="@+id/line_chart_view"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginTop="24dp"
-        android:background="#444444" 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_current_status" />
@@ -79,7 +78,7 @@
         android:text="Last 10 min"
         android:textAppearance="?attr/textAppearanceCaption"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/graph_placeholder" />
+        app:layout_constraintTop_toBottomOf="@+id/line_chart_view" />
 
 
     <!-- Summary Info Card -->

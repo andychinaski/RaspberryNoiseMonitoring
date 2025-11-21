@@ -129,6 +129,8 @@ public class ApiService {
                 URL url = new URL(urlString);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
+                // Disable GZIP compression. This can prevent "unexpected end of stream" errors.
+                connection.setRequestProperty("Accept-Encoding", "identity");
                 connection.setConnectTimeout(5000);
                 connection.setReadTimeout(5000);
 

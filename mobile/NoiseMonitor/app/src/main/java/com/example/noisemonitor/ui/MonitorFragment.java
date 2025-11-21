@@ -34,6 +34,7 @@ public class MonitorFragment extends Fragment {
     private ImageView currentStatusIndicator;
     private ProgressBar progressBar;
     private Group contentGroup;
+    private SimpleLineChartView lineChartView;
 
     private ApiService apiService;
     private final Handler autoRefreshHandler = new Handler(Looper.getMainLooper());
@@ -57,7 +58,6 @@ public class MonitorFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Reset initial load flag every time we come back to the screen
         isInitialLoad = true;
         startAutoRefresh();
     }
@@ -78,6 +78,7 @@ public class MonitorFragment extends Fragment {
         notificationsToday = view.findViewById(R.id.value_notifications);
         progressBar = view.findViewById(R.id.progress_bar_monitor);
         contentGroup = view.findViewById(R.id.content_group_monitor);
+        lineChartView = view.findViewById(R.id.line_chart_view);
     }
 
     private void loadSettings() {
@@ -93,14 +94,14 @@ public class MonitorFragment extends Fragment {
     }
 
     private void startAutoRefresh() {
-        stopAutoRefresh(); // Ensure no multiple runnables are running
+        stopAutoRefresh();
         autoRefreshRunnable = () -> {
             fetchNoiseStats();
             if (autoRefreshInterval > 0) {
                 autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
             }
         };
-        autoRefreshHandler.post(autoRefreshRunnable); // Start immediately
+        autoRefreshHandler.post(autoRefreshRunnable);
     }
 
     private void stopAutoRefresh() {
@@ -120,7 +121,7 @@ public class MonitorFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     updateUi(result);
                     setLoading(false);
-                    isInitialLoad = false; // Mark that initial load is done
+                    isInitialLoad = false;
                 });
             }
 
@@ -161,6 +162,9 @@ public class MonitorFragment extends Fragment {
         minToday.setText(String.format(Locale.getDefault(), "%d dB", stats.getMinNoise()));
         maxToday.setText(String.format(Locale.getDefault(), "%d dB", stats.getMaxNoise()));
         notificationsToday.setText(String.valueOf(stats.getNotificationsSent()));
+
+        // Pass data to the chart
+        lineChartView.setData(stats.getLast10Minutes());
     }
 
     private void setLoading(boolean isLoading) {
@@ -169,12 +173,10 @@ public class MonitorFragment extends Fragment {
         if (isLoading) {
             progressBar.setVisibility(View.VISIBLE);
             if (isInitialLoad) {
-                // On the very first load, hide the content to avoid showing stale data
                 contentGroup.setVisibility(View.INVISIBLE);
             }
         } else {
             progressBar.setVisibility(View.GONE);
-            // Always show content after loading is finished
             contentGroup.setVisibility(View.VISIBLE);
         }
     }
