@@ -8,8 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -47,62 +47,84 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MonitorFragment()).commit();
 
-            // Use post() to reliably set the initial indicator position after the layout is complete.
-            bottomNav.post(() -> setInitialIndicatorPosition());
+            // This is the most robust way: wait for the layout pass to be complete
+            bottomNav.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    // Attempt to set the initial position
+                    boolean success = setInitialIndicatorPosition();
+                    // If successful, we can remove the listener
+                    if (success) {
+                        bottomNav.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                }
+            });
         }
     }
 
     private final BottomNavigationView.OnItemSelectedListener navListener = item -> {
         Fragment selectedFragment = null;
+        int itemIndex = 0;
 
         int itemId = item.getItemId();
         if (itemId == R.id.nav_monitor) {
             selectedFragment = new MonitorFragment();
+            itemIndex = 0;
         } else if (itemId == R.id.nav_history) {
             selectedFragment = new HistoryFragment();
+            itemIndex = 1;
         } else if (itemId == R.id.nav_alerts) {
             selectedFragment = new AlertsFragment();
+            itemIndex = 2;
         } else if (itemId == R.id.nav_device) {
             selectedFragment = new DeviceFragment();
+            itemIndex = 3;
         }
 
         if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
-            animateIndicator(itemId);
+            animateIndicator(itemIndex);
             return true;
         }
         return false;
     };
 
-    private void setInitialIndicatorPosition() {
-        View targetView = bottomNav.findViewById(R.id.nav_monitor);
-        if (targetView == null) return;
+    private boolean setInitialIndicatorPosition() {
+        ViewGroup menuView = (ViewGroup) bottomNav.getChildAt(0);
+        if (menuView == null || menuView.getChildCount() == 0) return false;
+
+        View initialTarget = menuView.getChildAt(0);
+        if (initialTarget == null || initialTarget.getWidth() == 0) return false;
 
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) indicator.getLayoutParams();
-        params.leftMargin = targetView.getLeft();
-        params.width = targetView.getWidth();
+        params.leftMargin = initialTarget.getLeft();
+        params.width = initialTarget.getWidth();
         indicator.setLayoutParams(params);
+        return true;
     }
 
-    private void animateIndicator(@IdRes int itemId) {
-        View targetView = bottomNav.findViewById(itemId);
-        if (targetView == null) return;
+    private void animateIndicator(int index) {
+        ViewGroup menuView = (ViewGroup) bottomNav.getChildAt(0);
+        if (menuView == null || index >= menuView.getChildCount()) return;
 
-        int start = indicator.getLeft();
-        int end = targetView.getLeft();
-        int widthStart = indicator.getWidth();
-        int widthEnd = targetView.getWidth();
+        View targetView = menuView.getChildAt(index);
+        if (targetView == null || targetView.getWidth() == 0) return;
 
-        ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
+        int startPos = ((ViewGroup.MarginLayoutParams) indicator.getLayoutParams()).leftMargin;
+        int startWidth = indicator.getWidth();
+        int endPos = targetView.getLeft();
+        int endWidth = targetView.getWidth();
+
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(300);
         animator.addUpdateListener(animation -> {
             float fraction = animation.getAnimatedFraction();
-            int newLeft = (int) (start + (end - start) * fraction);
-            int newWidth = (int) (widthStart + (widthEnd - widthStart) * fraction);
+            int currentPos = (int) (startPos + (endPos - startPos) * fraction);
+            int currentWidth = (int) (startWidth + (endWidth - startWidth) * fraction);
 
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) indicator.getLayoutParams();
-            params.leftMargin = newLeft;
-            params.width = newWidth;
+            params.leftMargin = currentPos;
+            params.width = currentWidth;
             indicator.setLayoutParams(params);
         });
         animator.start();
