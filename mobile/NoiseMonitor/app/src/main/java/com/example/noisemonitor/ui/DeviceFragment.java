@@ -38,13 +38,20 @@ public class DeviceFragment extends Fragment {
         bindViews(view);
         apiService = ApiService.getInstance(requireContext());
 
-        updateButton.setOnClickListener(v -> fetchDeviceData());
+        updateButton.setOnClickListener(v -> refreshDeviceData());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        fetchDeviceData();
+        // Instead of fetching automatically, just update the UI based on the last known state.
+        if (apiService.isDeviceAvailable()) {
+            // If we think the device is available, try to refresh data.
+            refreshDeviceData();
+        } else {
+            // Otherwise, just show the offline state immediately.
+            updateUiWithFailureState();
+        }
     }
 
     private void bindViews(@NonNull View view) {
@@ -62,14 +69,12 @@ public class DeviceFragment extends Fragment {
         contentGroup = view.findViewById(R.id.content_group);
     }
 
-    private void fetchDeviceData() {
+    private void refreshDeviceData() {
         setLoadingState(true);
-
-        apiService.getDeviceData(new ApiService.ApiCallback<Device>() {
+        apiService.refreshDeviceConnection(new ApiService.ApiCallback<Device>() {
             @Override
             public void onSuccess(Device result) {
-                if (!isAdded()) return; 
-                
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     updateUiWithSuccessData(result);
@@ -79,11 +84,10 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onError(Exception e) {
                 if (!isAdded()) return;
-                
                 requireActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     updateUiWithFailureState();
-                    Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Connection failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
             }
         });

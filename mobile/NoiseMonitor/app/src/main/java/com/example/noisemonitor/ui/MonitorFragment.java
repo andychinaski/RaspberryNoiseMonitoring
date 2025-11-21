@@ -39,6 +39,7 @@ public class MonitorFragment extends Fragment {
     private final Handler autoRefreshHandler = new Handler(Looper.getMainLooper());
     private Runnable autoRefreshRunnable;
     private int autoRefreshInterval = 0; // in seconds
+    private boolean isInitialLoad = true;
 
     public MonitorFragment() {
         super(R.layout.fragment_monitor);
@@ -56,6 +57,8 @@ public class MonitorFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Reset initial load flag every time we come back to the screen
+        isInitialLoad = true;
         startAutoRefresh();
     }
 
@@ -90,16 +93,14 @@ public class MonitorFragment extends Fragment {
     }
 
     private void startAutoRefresh() {
-        if (autoRefreshInterval > 0) {
-            autoRefreshRunnable = () -> {
-                fetchNoiseStats();
-                autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
-            };
-            autoRefreshHandler.post(autoRefreshRunnable);
-        } else {
-            // If auto-refresh is off, fetch data once manually.
+        stopAutoRefresh(); // Ensure no multiple runnables are running
+        autoRefreshRunnable = () -> {
             fetchNoiseStats();
-        }
+            if (autoRefreshInterval > 0) {
+                autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
+            }
+        };
+        autoRefreshHandler.post(autoRefreshRunnable); // Start immediately
     }
 
     private void stopAutoRefresh() {
@@ -115,21 +116,18 @@ public class MonitorFragment extends Fragment {
         apiService.getNoiseStats(dateString, new ApiService.ApiCallback<NoiseStats>() {
             @Override
             public void onSuccess(NoiseStats result) {
-                if (!isAdded()) return; // Pre-check
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    // Final check before touching views
-                    if (getContext() == null) return;
                     updateUi(result);
                     setLoading(false);
+                    isInitialLoad = false; // Mark that initial load is done
                 });
             }
 
             @Override
             public void onError(Exception e) {
-                if (!isAdded()) return; // Pre-check
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    // Final check before touching views
-                    if (getContext() == null) return;
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     setLoading(false);
                 });
@@ -139,7 +137,7 @@ public class MonitorFragment extends Fragment {
 
     private void updateUi(NoiseStats stats) {
         Context context = getContext();
-        if (context == null) return; // Final safety net
+        if (context == null) return;
 
         currentDb.setText(String.format(Locale.getDefault(), "%d dB", stats.getCurrentNoise()));
         currentStatus.setText(stats.getEventType());
@@ -166,11 +164,18 @@ public class MonitorFragment extends Fragment {
     }
 
     private void setLoading(boolean isLoading) {
-        if (progressBar != null) {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        }
-        if (contentGroup != null) {
-            contentGroup.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        if (progressBar == null || contentGroup == null) return;
+
+        if (isLoading) {
+            progressBar.setVisibility(View.VISIBLE);
+            if (isInitialLoad) {
+                // On the very first load, hide the content to avoid showing stale data
+                contentGroup.setVisibility(View.INVISIBLE);
+            }
+        } else {
+            progressBar.setVisibility(View.GONE);
+            // Always show content after loading is finished
+            contentGroup.setVisibility(View.VISIBLE);
         }
     }
 }

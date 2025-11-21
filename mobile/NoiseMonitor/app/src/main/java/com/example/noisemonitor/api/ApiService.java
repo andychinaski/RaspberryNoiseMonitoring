@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -25,6 +27,19 @@ public class ApiService {
     private final ExecutorService executorService;
     private final Context context;
 
+    // --- Device State ---
+    private volatile boolean isDeviceAvailable = false;
+
+    // Parser interface to decouple network logic from parsing logic
+    private interface JsonParser<T> {
+        T parse(String jsonString) throws JSONException;
+    }
+
+    public interface ApiCallback<T> {
+        void onSuccess(T result);
+        void onError(Exception e);
+    }
+
     private ApiService(Context context) {
         this.executorService = Executors.newSingleThreadExecutor();
         this.context = context.getApplicationContext();
@@ -41,115 +56,90 @@ public class ApiService {
         return INSTANCE;
     }
 
-    public interface ApiCallback<T> {
-        void onSuccess(T result);
-        void onError(Exception e);
+    // --- Public API Methods ---
+
+    public boolean isDeviceAvailable() {
+        return isDeviceAvailable;
     }
 
-    public void getDeviceData(ApiCallback<Device> callback) {
-        executorService.execute(() -> {
-            HttpURLConnection connection = null;
-            try {
-                String baseUrl = getBaseUrl();
-                URL url = new URL(baseUrl + "/device-info");
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(5000);
-                connection.setReadTimeout(5000);
+    public void refreshDeviceConnection(ApiCallback<Device> callback) {
+        String url = getBaseUrl() + "/device-info";
+        executeRequest(url, jsonString -> new Device(new JSONObject(jsonString)), new ApiCallback<Device>() {
+            @Override
+            public void onSuccess(Device result) {
+                isDeviceAvailable = true;
+                callback.onSuccess(result);
+            }
 
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder content = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-
-                    JSONObject jsonObject = new JSONObject(content.toString());
-                    Device device = new Device(jsonObject);
-                    callback.onSuccess(device);
-                } else {
-                    throw new Exception("HTTP Error: " + connection.getResponseCode());
-                }
-            } catch (Exception e) {
+            @Override
+            public void onError(Exception e) {
+                isDeviceAvailable = false;
                 callback.onError(e);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
             }
         });
     }
 
     public void getHistoryEvents(@NonNull String date, boolean onlyCritical, ApiCallback<List<HistoryEvent>> callback) {
-        executorService.execute(() -> {
-            HttpURLConnection connection = null;
-            try {
-                String baseUrl = getBaseUrl();
-                int criticalFlag = onlyCritical ? 1 : 0;
-                URL url = new URL(baseUrl + "/events?date=" + date + "&only_critical=" + criticalFlag);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(5000);
-                connection.setReadTimeout(5000);
-
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder content = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-
-                    JSONArray jsonArray = new JSONArray(content.toString());
-                    List<HistoryEvent> events = new ArrayList<>();
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        events.add(new HistoryEvent(jsonArray.getJSONObject(i)));
-                    }
-                    callback.onSuccess(events);
-                } else {
-                    throw new Exception("HTTP Error: " + connection.getResponseCode());
-                }
-            } catch (Exception e) {
-                callback.onError(e);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+        if (!isDeviceAvailable) {
+            callback.onError(new IllegalStateException("Device is not available."));
+            return;
+        }
+        String url = getBaseUrl() + "/events?date=" + date + "&only_critical=" + (onlyCritical ? 1 : 0);
+        executeRequest(url, jsonString -> {
+            JSONArray jsonArray = new JSONArray(jsonString);
+            List<HistoryEvent> events = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                events.add(new HistoryEvent(jsonArray.getJSONObject(i)));
             }
-        });
+            return events;
+        }, callback);
     }
 
     public void getAlerts(@NonNull String date, boolean successfullySent, ApiCallback<List<AlertEvent>> callback) {
+        if (!isDeviceAvailable) {
+            callback.onError(new IllegalStateException("Device is not available."));
+            return;
+        }
+        String url = getBaseUrl() + "/notifications?date=" + date;
+        executeRequest(url, jsonString -> {
+            JSONArray jsonArray = new JSONArray(jsonString);
+            List<AlertEvent> alerts = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                alerts.add(new AlertEvent(jsonArray.getJSONObject(i)));
+            }
+            return alerts;
+        }, callback);
+    }
+
+    public void getNoiseStats(@NonNull String date, ApiCallback<NoiseStats> callback) {
+        if (!isDeviceAvailable) {
+            callback.onError(new IllegalStateException("Device is not available."));
+            return;
+        }
+        String url = getBaseUrl() + "/noise-stats?date=" + date;
+        executeRequest(url, jsonString -> new NoiseStats(new JSONObject(jsonString)), callback);
+    }
+
+    // --- Private Helper Methods ---
+
+    private <T> void executeRequest(String urlString, JsonParser<T> parser, ApiCallback<T> callback) {
         executorService.execute(() -> {
             HttpURLConnection connection = null;
             try {
-                String baseUrl = getBaseUrl();
-                URL url = new URL(baseUrl + "/notifications?date=" + date);
+                URL url = new URL(urlString);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setConnectTimeout(5000);
                 connection.setReadTimeout(5000);
 
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder content = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-
-                    JSONArray jsonArray = new JSONArray(content.toString());
-                    List<AlertEvent> alerts = new ArrayList<>();
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        alerts.add(new AlertEvent(jsonArray.getJSONObject(i)));
-                    }
-                    callback.onSuccess(alerts);
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    String jsonString = readStream(connection.getInputStream());
+                    T result = parser.parse(jsonString);
+                    callback.onSuccess(result);
                 } else {
-                    throw new Exception("HTTP Error: " + connection.getResponseCode());
+                    String errorString = readStream(connection.getErrorStream());
+                    throw new Exception("HTTP Error: " + responseCode + " - " + errorString);
                 }
             } catch (Exception e) {
                 callback.onError(e);
@@ -161,40 +151,18 @@ public class ApiService {
         });
     }
 
-    public void getNoiseStats(@NonNull String date, ApiCallback<NoiseStats> callback) {
-        executorService.execute(() -> {
-            HttpURLConnection connection = null;
-            try {
-                String baseUrl = getBaseUrl();
-                URL url = new URL(baseUrl + "/noise-stats?date=" + date);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(5000);
-                connection.setReadTimeout(5000);
-
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder content = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        content.append(inputLine);
-                    }
-                    in.close();
-
-                    JSONObject jsonObject = new JSONObject(content.toString());
-                    NoiseStats stats = new NoiseStats(jsonObject);
-                    callback.onSuccess(stats);
-                } else {
-                    throw new Exception("HTTP Error: " + connection.getResponseCode());
-                }
-            } catch (Exception e) {
-                callback.onError(e);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+    private String readStream(InputStream inputStream) throws Exception {
+        if (inputStream == null) {
+            return "";
+        }
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
             }
-        });
+        }
+        return content.toString();
     }
 
     private String getBaseUrl() {

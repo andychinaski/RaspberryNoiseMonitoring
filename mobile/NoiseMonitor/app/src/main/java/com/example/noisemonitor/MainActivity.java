@@ -10,12 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import com.example.noisemonitor.api.ApiService;
+import com.example.noisemonitor.api.Device;
 import com.example.noisemonitor.ui.AlertsFragment;
 import com.example.noisemonitor.ui.DeviceFragment;
 import com.example.noisemonitor.ui.HistoryFragment;
@@ -44,18 +47,27 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav.setOnItemSelectedListener(navListener);
 
+        // Initial check of device connection
+        ApiService.getInstance(this).refreshDeviceConnection(new ApiService.ApiCallback<Device>() {
+            @Override
+            public void onSuccess(Device result) { /* Do nothing, state is handled in ApiService */ }
+            @Override
+            public void onError(Exception e) { /* Do nothing, state is handled in ApiService */ }
+        });
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MonitorFragment()).commit();
 
-            // This is the most robust way: wait for the layout pass to be complete
             bottomNav.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    // Attempt to set the initial position
-                    boolean success = setInitialIndicatorPosition();
-                    // If successful, we can remove the listener
-                    if (success) {
-                        bottomNav.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    ViewGroup menuView = (ViewGroup) bottomNav.getChildAt(0);
+                    if (menuView != null && menuView.getChildCount() > 0) {
+                        View initialTarget = menuView.getChildAt(0);
+                        if (initialTarget.getWidth() > 0) {
+                            setInitialIndicatorPosition();
+                            bottomNav.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
                     }
                 }
             });
@@ -89,45 +101,45 @@ public class MainActivity extends AppCompatActivity {
         return false;
     };
 
-    private boolean setInitialIndicatorPosition() {
+    private void setInitialIndicatorPosition() {
         ViewGroup menuView = (ViewGroup) bottomNav.getChildAt(0);
-        if (menuView == null || menuView.getChildCount() == 0) return false;
-
+        if (menuView == null || menuView.getChildCount() == 0) return;
         View initialTarget = menuView.getChildAt(0);
-        if (initialTarget == null || initialTarget.getWidth() == 0) return false;
+        if(initialTarget == null) return;
 
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) indicator.getLayoutParams();
         params.leftMargin = initialTarget.getLeft();
         params.width = initialTarget.getWidth();
         indicator.setLayoutParams(params);
-        return true;
     }
 
     private void animateIndicator(int index) {
         ViewGroup menuView = (ViewGroup) bottomNav.getChildAt(0);
         if (menuView == null || index >= menuView.getChildCount()) return;
-
         View targetView = menuView.getChildAt(index);
-        if (targetView == null || targetView.getWidth() == 0) return;
+        if (targetView == null) return;
 
-        int startPos = ((ViewGroup.MarginLayoutParams) indicator.getLayoutParams()).leftMargin;
-        int startWidth = indicator.getWidth();
-        int endPos = targetView.getLeft();
-        int endWidth = targetView.getWidth();
+        int start = ((ViewGroup.MarginLayoutParams) indicator.getLayoutParams()).leftMargin;
+        int end = targetView.getLeft();
 
-        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        ValueAnimator animator = ValueAnimator.ofInt(start, end);
         animator.setDuration(300);
         animator.addUpdateListener(animation -> {
-            float fraction = animation.getAnimatedFraction();
-            int currentPos = (int) (startPos + (endPos - startPos) * fraction);
-            int currentWidth = (int) (startWidth + (endWidth - startWidth) * fraction);
-
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) indicator.getLayoutParams();
-            params.leftMargin = currentPos;
-            params.width = currentWidth;
+            params.leftMargin = (int) animation.getAnimatedValue();
             indicator.setLayoutParams(params);
         });
+
+        ValueAnimator widthAnimator = ValueAnimator.ofInt(indicator.getWidth(), targetView.getWidth());
+        widthAnimator.setDuration(300);
+        widthAnimator.addUpdateListener(animation -> {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) indicator.getLayoutParams();
+            params.width = (int) animation.getAnimatedValue();
+            indicator.setLayoutParams(params);
+        });
+
         animator.start();
+        widthAnimator.start();
     }
 
     private void applyTheme() {
