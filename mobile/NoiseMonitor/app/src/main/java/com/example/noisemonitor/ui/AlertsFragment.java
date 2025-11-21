@@ -2,9 +2,9 @@ package com.example.noisemonitor.ui;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -34,14 +34,14 @@ public class AlertsFragment extends Fragment {
     private ApiService apiService;
     private ProgressBar progressBar;
     private SwitchMaterial sentOnlySwitch;
+    private ImageButton refreshButton;
+    private Button todayButton, yesterdayButton, selectDateButton;
 
     private Calendar selectedDate = Calendar.getInstance();
     private final SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_alerts, container, false);
+    public AlertsFragment() {
+        super(R.layout.fragment_alerts);
     }
 
     @Override
@@ -53,13 +53,17 @@ public class AlertsFragment extends Fragment {
         setupRecyclerView();
         setupButtons();
 
-        fetchAlertsData(); // Initial data fetch for today
+        fetchAlertsData(); // Initial data fetch
     }
 
-    private void bindViews(View view) {
+    private void bindViews(@NonNull View view) {
         recyclerView = view.findViewById(R.id.recycler_view_alerts);
         progressBar = view.findViewById(R.id.progress_bar_alerts);
         sentOnlySwitch = view.findViewById(R.id.switch_sent_only);
+        refreshButton = view.findViewById(R.id.button_refresh_alerts);
+        todayButton = view.findViewById(R.id.button_today_alerts);
+        yesterdayButton = view.findViewById(R.id.button_yesterday_alerts);
+        selectDateButton = view.findViewById(R.id.button_select_date_alerts);
     }
 
     private void setupRecyclerView() {
@@ -71,21 +75,21 @@ public class AlertsFragment extends Fragment {
     }
 
     private void setupButtons() {
-        getView().findViewById(R.id.button_refresh_alerts).setOnClickListener(v -> fetchAlertsData());
+        refreshButton.setOnClickListener(v -> fetchAlertsData());
         sentOnlySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> fetchAlertsData());
 
-        getView().findViewById(R.id.button_today_alerts).setOnClickListener(v -> {
+        todayButton.setOnClickListener(v -> {
             selectedDate = Calendar.getInstance();
             fetchAlertsData();
         });
 
-        getView().findViewById(R.id.button_yesterday_alerts).setOnClickListener(v -> {
+        yesterdayButton.setOnClickListener(v -> {
             selectedDate = Calendar.getInstance();
             selectedDate.add(Calendar.DAY_OF_YEAR, -1);
             fetchAlertsData();
         });
 
-        getView().findViewById(R.id.button_select_date_alerts).setOnClickListener(v -> showDatePicker());
+        selectDateButton.setOnClickListener(v -> showDatePicker());
     }
 
     private void showDatePicker() {
@@ -110,10 +114,8 @@ public class AlertsFragment extends Fragment {
         apiService.getAlerts(dateString, sentOnly, new ApiService.ApiCallback<List<AlertEvent>>() {
             @Override
             public void onSuccess(List<AlertEvent> result) {
-                // Safety check: Make sure the fragment is still attached to an activity
-                if (getActivity() == null) return;
-                
-                getActivity().runOnUiThread(() -> {
+                if (!isAdded()) return; // Safety check
+                requireActivity().runOnUiThread(() -> {
                     alertList.clear();
                     alertList.addAll(result);
                     adapter.notifyDataSetChanged();
@@ -126,10 +128,8 @@ public class AlertsFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
-                // Safety check: Make sure the fragment is still attached to an activity
-                if (getActivity() == null) return;
-                
-                getActivity().runOnUiThread(() -> {
+                if (!isAdded()) return; // Safety check
+                requireActivity().runOnUiThread(() -> {
                     setLoading(false);
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
@@ -138,7 +138,11 @@ public class AlertsFragment extends Fragment {
     }
 
     private void setLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        if (progressBar != null) {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        }
+        if (recyclerView != null) {
+            recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        }
     }
 }

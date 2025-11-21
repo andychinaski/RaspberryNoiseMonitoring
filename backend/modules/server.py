@@ -48,30 +48,40 @@ def get_measurements():
 
 @app.route('/api/noise-stats', methods=['GET'])
 def get_noise_stats_route():
-    # Получение параметра даты из запроса
     date = request.args.get('date')
 
     if not date:
         return jsonify({"error": "Date parameter is required"}), 400
 
     try:
-        # Получаем статистику шума за указанный день
-        noise_stats = get_noise_stats(date)
-        
-        if noise_stats:
-            return jsonify({
-                "date": date,
-                "min_noise": noise_stats['min_noise'],
-                "max_noise": noise_stats['max_noise'],
-                "current_noise": noise_stats['current_noise']
-            })
-        else:
+        stats = get_noise_stats(date)
+
+        # Если данных нет, возвращаем нули, но полную структуру
+        if not stats:
             return jsonify({
                 "date": date,
                 "min_noise": 0,
                 "max_noise": 0,
-                "current_noise": 0
+                "current_noise": 0,
+                "current_timestamp": None,
+                "event_type": "NORMAL",
+                "notifications_sent": 0,
+                "last_10_minutes": []
             })
+
+        # Нормальный ответ — отдаём всё, что вернула функция
+        response = {
+            "date": date,
+            "min_noise": stats["min_noise"],
+            "max_noise": stats["max_noise"],
+            "current_noise": stats["current_noise"],
+            "current_timestamp": stats["current_timestamp"],
+            "event_type": stats["event_type"],
+            "notifications_sent": stats["notifications_sent"],
+            "last_10_minutes": stats["last_10_minutes"]
+        }
+
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

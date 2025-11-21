@@ -1,9 +1,7 @@
 package com.example.noisemonitor.ui;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -24,16 +22,14 @@ public class DeviceFragment extends Fragment {
 
     private TextView deviceName, status, uptime, frequency, warning, critical;
     private ImageView statusIcon;
-    private Button rebootButton, shutdownButton;
+    private Button updateButton, rebootButton, shutdownButton;
     private ProgressBar progressBar;
     private Group contentGroup;
 
     private ApiService apiService;
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_device, container, false);
+    public DeviceFragment() {
+        super(R.layout.fragment_device);
     }
 
     @Override
@@ -42,7 +38,6 @@ public class DeviceFragment extends Fragment {
         bindViews(view);
         apiService = ApiService.getInstance(requireContext());
 
-        Button updateButton = view.findViewById(R.id.button_update);
         updateButton.setOnClickListener(v -> fetchDeviceData());
     }
 
@@ -52,7 +47,7 @@ public class DeviceFragment extends Fragment {
         fetchDeviceData();
     }
 
-    private void bindViews(View view) {
+    private void bindViews(@NonNull View view) {
         deviceName = view.findViewById(R.id.value_device_name);
         status = view.findViewById(R.id.value_status);
         statusIcon = view.findViewById(R.id.icon_status);
@@ -60,6 +55,7 @@ public class DeviceFragment extends Fragment {
         frequency = view.findViewById(R.id.value_frequency);
         warning = view.findViewById(R.id.value_warning);
         critical = view.findViewById(R.id.value_critical);
+        updateButton = view.findViewById(R.id.button_update);
         rebootButton = view.findViewById(R.id.button_reboot);
         shutdownButton = view.findViewById(R.id.button_shutdown_sensor);
         progressBar = view.findViewById(R.id.progress_bar);
@@ -72,10 +68,9 @@ public class DeviceFragment extends Fragment {
         apiService.getDeviceData(new ApiService.ApiCallback<Device>() {
             @Override
             public void onSuccess(Device result) {
-                // Safety check: Make sure the fragment is still attached to an activity
-                if (getActivity() == null) return;
+                if (!isAdded()) return; 
                 
-                getActivity().runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     updateUiWithSuccessData(result);
                 });
@@ -83,10 +78,9 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
-                // Safety check: Make sure the fragment is still attached to an activity
-                if (getActivity() == null) return;
+                if (!isAdded()) return;
                 
-                getActivity().runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     updateUiWithFailureState();
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -98,10 +92,10 @@ public class DeviceFragment extends Fragment {
     private void setLoadingState(boolean isLoading) {
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         contentGroup.setVisibility(isLoading ? View.GONE : View.VISIBLE);
-        if (isLoading) {
-            rebootButton.setEnabled(false);
-            shutdownButton.setEnabled(false);
-        }
+        
+        updateButton.setEnabled(!isLoading);
+        rebootButton.setEnabled(!isLoading);
+        shutdownButton.setEnabled(!isLoading);
     }
 
     private void updateUiWithSuccessData(Device device) {

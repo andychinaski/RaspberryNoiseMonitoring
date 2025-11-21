@@ -3,6 +3,7 @@ package com.example.noisemonitor.ui;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -33,11 +34,12 @@ public class HistoryFragment extends Fragment {
     private ApiService apiService;
     private ProgressBar progressBar;
     private SwitchMaterial criticalOnlySwitch;
+    private ImageButton refreshButton;
+    private Button todayButton, yesterdayButton, selectDateButton;
 
     private Calendar selectedDate = Calendar.getInstance();
     private final SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-    // Use the Fragment constructor with the layout ID. This is the modern approach.
     public HistoryFragment() {
         super(R.layout.fragment_history);
     }
@@ -48,19 +50,23 @@ public class HistoryFragment extends Fragment {
 
         apiService = ApiService.getInstance(requireContext());
         bindViews(view);
-        setupRecyclerView(view); // Pass the view
-        setupButtons(view);      // Pass the view
+        setupRecyclerView();
+        setupButtons();
 
-        fetchHistoryData(); // Initial data fetch for today
+        fetchHistoryData(); // Initial data fetch
     }
 
     private void bindViews(@NonNull View view) {
         recyclerView = view.findViewById(R.id.recycler_view_history);
         progressBar = view.findViewById(R.id.progress_bar_history);
         criticalOnlySwitch = view.findViewById(R.id.switch_critical_only);
+        refreshButton = view.findViewById(R.id.button_refresh);
+        todayButton = view.findViewById(R.id.button_today);
+        yesterdayButton = view.findViewById(R.id.button_yesterday);
+        selectDateButton = view.findViewById(R.id.button_select_date);
     }
 
-    private void setupRecyclerView(@NonNull View view) {
+    private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new HistoryAdapter(requireContext(), eventList);
@@ -68,23 +74,22 @@ public class HistoryFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), layoutManager.getOrientation()));
     }
 
-    private void setupButtons(@NonNull View view) {
-        ImageButton refreshButton = view.findViewById(R.id.button_refresh);
+    private void setupButtons() {
         refreshButton.setOnClickListener(v -> fetchHistoryData());
         criticalOnlySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> fetchHistoryData());
 
-        view.findViewById(R.id.button_today).setOnClickListener(v -> {
+        todayButton.setOnClickListener(v -> {
             selectedDate = Calendar.getInstance();
             fetchHistoryData();
         });
 
-        view.findViewById(R.id.button_yesterday).setOnClickListener(v -> {
+        yesterdayButton.setOnClickListener(v -> {
             selectedDate = Calendar.getInstance();
             selectedDate.add(Calendar.DAY_OF_YEAR, -1);
             fetchHistoryData();
         });
 
-        view.findViewById(R.id.button_select_date).setOnClickListener(v -> showDatePicker());
+        selectDateButton.setOnClickListener(v -> showDatePicker());
     }
 
     private void showDatePicker() {
@@ -109,8 +114,7 @@ public class HistoryFragment extends Fragment {
         apiService.getHistoryEvents(dateString, criticalOnly, new ApiService.ApiCallback<List<HistoryEvent>>() {
             @Override
             public void onSuccess(List<HistoryEvent> result) {
-                if (!isAdded()) return;
-                
+                if (!isAdded()) return; // Safety check
                 requireActivity().runOnUiThread(() -> {
                     eventList.clear();
                     eventList.addAll(result);
@@ -125,7 +129,6 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onError(Exception e) {
                 if (!isAdded()) return;
-                
                 requireActivity().runOnUiThread(() -> {
                     setLoading(false);
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();

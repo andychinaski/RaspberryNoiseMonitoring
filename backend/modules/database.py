@@ -89,15 +89,24 @@ def insert_telegram_notification(message, status="sent"):
 
 def get_noise_stats(date):
     """
-    Получение статистики уровня шума за определённый день.
+    Получение расширенной статистики шума за день.
 
-    :param date: Дата в формате 'YYYY-MM-DD'
-    :return: Словарь с ключами 'min_noise', 'max_noise' и 'current_noise' или None, если данных нет
+    Возвращает словарь:
+    {
+        min_noise,
+        max_noise,
+        current_noise,
+        current_timestamp,
+        event_type,
+        notifications_sent,
+        last_10_minutes: [{timestamp, noise_level}]
+    }
     """
+
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
-    # Получение минимального и максимального уровня шума за день
+    # --- Минимум/максимум ---
     cursor.execute("""
         SELECT MIN(noise_level), MAX(noise_level)
         FROM measurements
@@ -105,28 +114,58 @@ def get_noise_stats(date):
     """, (date,))
     min_max_result = cursor.fetchone()
 
-    # Получение последней записи для текущего дня
+    # --- Последнее измерение ---
     cursor.execute("""
-        SELECT noise_level
+        SELECT id, timestamp, noise_level, event
         FROM measurements
         WHERE DATE(timestamp) = ?
         ORDER BY timestamp DESC
         LIMIT 1
     """, (date,))
-    current_result = cursor.fetchone()
+    current_row = cursor.fetchone()
+
+    if not min_max_result or not current_row:
+        conn.close()
+        return None
+
+    min_noise, max_noise = min_max_result
+    measurement_id, current_timestamp, current_noise, event_type = current_row
+
+    # --- Количество успешно отправленных уведомлений ---
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM telegram_notifications
+        WHERE DATE(sent_at) = ?
+          AND status = 'sent'
+    """, (date,))
+    notifications_sent = cursor.fetchone()[0]
+
+    # --- Последние 10 минут относительно текущей записи ---
+    cursor.execute("""
+        SELECT timestamp, noise_level
+        FROM measurements
+        WHERE timestamp >= datetime(?, '-10 minutes')
+          AND timestamp <= ?
+        ORDER BY timestamp ASC
+    """, (current_timestamp, current_timestamp))
+    last_10_minutes_rows = cursor.fetchall()
+
+    last_10_minutes = [
+        {"timestamp": ts, "noise_level": nl}
+        for ts, nl in last_10_minutes_rows
+    ]
 
     conn.close()
 
-    if min_max_result and current_result:
-        min_noise, max_noise = min_max_result
-        current_noise = current_result[0]
-        return {
-            'min_noise': min_noise,
-            'max_noise': max_noise,
-            'current_noise': current_noise
-        }
-
-    return None
+    return {
+        "min_noise": min_noise,
+        "max_noise": max_noise,
+        "current_noise": current_noise,
+        "current_timestamp": current_timestamp,
+        "event_type": event_type,
+        "notifications_sent": notifications_sent,
+        "last_10_minutes": last_10_minutes
+    }
 
 def get_last_notification_date():
     """
