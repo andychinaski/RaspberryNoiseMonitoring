@@ -36,8 +36,9 @@ public class SettingsDialogFragment extends DialogFragment {
     private TextInputEditText inputApiUrl;
     private ApiService apiService;
 
-    // This constructor is required by the system.
-    public SettingsDialogFragment() { }
+    public SettingsDialogFragment() {
+        // Required empty public constructor
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,35 +109,39 @@ public class SettingsDialogFragment extends DialogFragment {
     }
 
     private void saveSettingsAndRefreshConnection() {
-        SharedPreferences.Editor editor = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+        SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        int currentThemePos = prefs.getInt(KEY_THEME_POSITION, 0);
+        int newThemePos = spinnerTheme.getSelectedItemPosition();
+
         editor.putBoolean(KEY_PUSH_NOTIFICATIONS, switchPush.isChecked());
         editor.putInt(KEY_AUTO_REFRESH_POSITION, spinnerAutoRefresh.getSelectedItemPosition());
-        editor.putInt(KEY_THEME_POSITION, spinnerTheme.getSelectedItemPosition());
+        editor.putInt(KEY_THEME_POSITION, newThemePos);
         editor.putString(KEY_API_URL, inputApiUrl.getText().toString());
         editor.apply();
 
-        int themePosition = spinnerTheme.getSelectedItemPosition();
-        if (themePosition == 0) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        // If the theme has changed, the activity will be recreated. No further action is needed.
+        if (currentThemePos != newThemePos) {
+            AppCompatDelegate.setDefaultNightMode(newThemePos == 0 ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES);
         } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            // If the theme has NOT changed, it's safe to show a toast and refresh the connection.
+            Toast.makeText(getContext(), "Checking connection...", Toast.LENGTH_SHORT).show();
+            apiService.refreshDeviceConnection(new ApiService.ApiCallback<Device>() {
+                @Override
+                public void onSuccess(Device result) {
+                    if (isAdded() && getActivity() != null) {
+                        getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Connection successful!", Toast.LENGTH_SHORT).show());
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (isAdded() && getActivity() != null) {
+                        getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Connection failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                    }
+                }
+            });
         }
-
-        Toast.makeText(getContext(), "Checking connection...", Toast.LENGTH_SHORT).show();
-        apiService.refreshDeviceConnection(new ApiService.ApiCallback<Device>() {
-            @Override
-            public void onSuccess(Device result) {
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Connection successful!", Toast.LENGTH_SHORT).show());
-                }
-            }
-
-            @Override
-            public void onError(Exception e) {
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Connection failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                }
-            }
-        });
     }
 }
