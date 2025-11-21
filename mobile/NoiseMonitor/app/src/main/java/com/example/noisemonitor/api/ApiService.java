@@ -7,15 +7,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class ApiService {
 
@@ -24,13 +26,11 @@ public class ApiService {
     private static final String DEFAULT_API_URL = "http://192.168.0.10:8000";
 
     private static volatile ApiService INSTANCE;
-    private final ExecutorService executorService;
+    private final OkHttpClient client;
     private final Context context;
 
-    // --- Device State ---
     private volatile boolean isDeviceAvailable = false;
 
-    // Parser interface to decouple network logic from parsing logic
     private interface JsonParser<T> {
         T parse(String jsonString) throws JSONException;
     }
@@ -41,7 +41,10 @@ public class ApiService {
     }
 
     private ApiService(Context context) {
-        this.executorService = Executors.newSingleThreadExecutor();
+        this.client = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .build();
         this.context = context.getApplicationContext();
     }
 
@@ -55,8 +58,6 @@ public class ApiService {
         }
         return INSTANCE;
     }
-
-    // --- Public API Methods ---
 
     public boolean isDeviceAvailable() {
         return isDeviceAvailable;
@@ -120,51 +121,29 @@ public class ApiService {
         executeRequest(url, jsonString -> new NoiseStats(new JSONObject(jsonString)), callback);
     }
 
-    // --- Private Helper Methods ---
-
     private <T> void executeRequest(String urlString, JsonParser<T> parser, ApiCallback<T> callback) {
-        executorService.execute(() -> {
-            HttpURLConnection connection = null;
-            try {
-                URL url = new URL(urlString);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                // Disable GZIP compression. This can prevent "unexpected end of stream" errors.
-                connection.setRequestProperty("Accept-Encoding", "identity");
-                connection.setConnectTimeout(5000);
-                connection.setReadTimeout(5000);
+        Request request = new Request.Builder().url(urlString).build();
 
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    String jsonString = readStream(connection.getInputStream());
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful() || responseBody == null) {
+                        throw new IOException("Request failed with code: " + response.code());
+                    }
+                    String jsonString = responseBody.string();
                     T result = parser.parse(jsonString);
                     callback.onSuccess(result);
-                } else {
-                    String errorString = readStream(connection.getErrorStream());
-                    throw new Exception("HTTP Error: " + responseCode + " - " + errorString);
-                }
-            } catch (Exception e) {
-                callback.onError(e);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
+                } catch (Exception e) {
+                    callback.onError(e);
                 }
             }
         });
-    }
-
-    private String readStream(InputStream inputStream) throws Exception {
-        if (inputStream == null) {
-            return "";
-        }
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
-            }
-        }
-        return content.toString();
     }
 
     private String getBaseUrl() {

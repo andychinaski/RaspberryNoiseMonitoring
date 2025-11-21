@@ -39,6 +39,7 @@ public class HistoryFragment extends Fragment {
 
     private Calendar selectedDate = Calendar.getInstance();
     private final SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private boolean isInitialLoad = true;
 
     public HistoryFragment() {
         super(R.layout.fragment_history);
@@ -52,8 +53,13 @@ public class HistoryFragment extends Fragment {
         bindViews(view);
         setupRecyclerView();
         setupButtons();
+    }
 
-        fetchHistoryData(); // Initial data fetch
+    @Override
+    public void onResume() {
+        super.onResume();
+        isInitialLoad = true; // Reset on resume
+        fetchHistoryData();
     }
 
     private void bindViews(@NonNull View view) {
@@ -114,12 +120,13 @@ public class HistoryFragment extends Fragment {
         apiService.getHistoryEvents(dateString, criticalOnly, new ApiService.ApiCallback<List<HistoryEvent>>() {
             @Override
             public void onSuccess(List<HistoryEvent> result) {
-                if (!isAdded()) return; // Safety check
+                if (!isAdded()) return; 
                 requireActivity().runOnUiThread(() -> {
+                    setLoading(false);
                     eventList.clear();
                     eventList.addAll(result);
                     adapter.notifyDataSetChanged();
-                    setLoading(false);
+                    isInitialLoad = false; // Mark initial load as done
                     if (result.isEmpty()) {
                         Toast.makeText(getContext(), "No events found for this day.", Toast.LENGTH_SHORT).show();
                     }
@@ -128,9 +135,10 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
-                if (!isAdded()) return;
+                if (!isAdded()) return; 
                 requireActivity().runOnUiThread(() -> {
                     setLoading(false);
+                    isInitialLoad = false;
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
             }
@@ -138,11 +146,18 @@ public class HistoryFragment extends Fragment {
     }
 
     private void setLoading(boolean isLoading) {
-        if (progressBar != null) {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        }
-        if (recyclerView != null) {
-            recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        if (progressBar != null && recyclerView != null) {
+            if (isLoading) {
+                progressBar.setVisibility(View.VISIBLE);
+                if (isInitialLoad) {
+                    // On first load, hide the content to avoid showing old data
+                    recyclerView.setVisibility(View.INVISIBLE);
+                }
+            } else {
+                progressBar.setVisibility(View.GONE);
+                // Always make sure content is visible when not loading
+                recyclerView.setVisibility(View.VISIBLE);
+            }
         }
     }
 }

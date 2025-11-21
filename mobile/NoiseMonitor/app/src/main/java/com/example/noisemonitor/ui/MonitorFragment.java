@@ -94,14 +94,9 @@ public class MonitorFragment extends Fragment {
     }
 
     private void startAutoRefresh() {
-        stopAutoRefresh();
-        autoRefreshRunnable = () -> {
-            fetchNoiseStats();
-            if (autoRefreshInterval > 0) {
-                autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
-            }
-        };
-        autoRefreshHandler.post(autoRefreshRunnable);
+        stopAutoRefresh(); // Ensure no multiple runnables are running
+        autoRefreshRunnable = this::fetchNoiseStats;
+        autoRefreshHandler.post(autoRefreshRunnable); // Start the first fetch immediately
     }
 
     private void stopAutoRefresh() {
@@ -111,7 +106,11 @@ public class MonitorFragment extends Fragment {
     }
 
     private void fetchNoiseStats() {
-        setLoading(true);
+        // Only show the main progress bar on the initial load
+        if(isInitialLoad) {
+            setLoading(true);
+        }
+
         String dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
 
         apiService.getNoiseStats(dateString, new ApiService.ApiCallback<NoiseStats>() {
@@ -120,8 +119,13 @@ public class MonitorFragment extends Fragment {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     updateUi(result);
-                    setLoading(false);
-                    isInitialLoad = false;
+                    setLoading(false); // Hide progress bar
+                    isInitialLoad = false; // Mark that initial load is done
+
+                    // Schedule the next run only after the current one has succeeded.
+                    if (autoRefreshInterval > 0) {
+                        autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
+                    }
                 });
             }
 
@@ -131,6 +135,11 @@ public class MonitorFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     setLoading(false);
+
+                    // Also schedule a retry on error to keep the loop going.
+                    if (autoRefreshInterval > 0) {
+                        autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
+                    }
                 });
             }
         });
@@ -138,7 +147,7 @@ public class MonitorFragment extends Fragment {
 
     private void updateUi(NoiseStats stats) {
         Context context = getContext();
-        if (context == null) return;
+        if (context == null) return; // Final safety net
 
         currentDb.setText(String.format(Locale.getDefault(), "%d dB", stats.getCurrentNoise()));
         currentStatus.setText(stats.getEventType());
@@ -170,12 +179,12 @@ public class MonitorFragment extends Fragment {
     private void setLoading(boolean isLoading) {
         if (progressBar == null || contentGroup == null) return;
 
-        if (isLoading) {
+        if (isLoading && isInitialLoad) {
+            // On the very first load, show progress and hide content
             progressBar.setVisibility(View.VISIBLE);
-            if (isInitialLoad) {
-                contentGroup.setVisibility(View.INVISIBLE);
-            }
+            contentGroup.setVisibility(View.INVISIBLE);
         } else {
+            // On subsequent loads or after loading, hide progress and show content
             progressBar.setVisibility(View.GONE);
             contentGroup.setVisibility(View.VISIBLE);
         }
