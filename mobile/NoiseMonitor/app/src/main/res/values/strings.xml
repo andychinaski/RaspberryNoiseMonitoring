@@ -29,6 +29,11 @@
     <string name="select_date">Select Date</string>
     <string name="successfully_sent">Successfully sent</string>
 
+    <string name="last_updated">Last updated:</string>
+    <string name="min_today">Min today:</string>
+    <string name="max_today">Max today:</string>
+    <string name="notifications_today">Notifications:</string>
+
     <string-array name="auto_refresh_entries">
         <item>none</item>
         <item>5 sec</item>
