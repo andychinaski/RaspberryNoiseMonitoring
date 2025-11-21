@@ -2,9 +2,8 @@ package com.example.noisemonitor.ui;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -38,10 +37,9 @@ public class HistoryFragment extends Fragment {
     private Calendar selectedDate = Calendar.getInstance();
     private final SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_history, container, false);
+    // Use the Fragment constructor with the layout ID. This is the modern approach.
+    public HistoryFragment() {
+        super(R.layout.fragment_history);
     }
 
     @Override
@@ -50,19 +48,19 @@ public class HistoryFragment extends Fragment {
 
         apiService = ApiService.getInstance(requireContext());
         bindViews(view);
-        setupRecyclerView();
-        setupButtons();
+        setupRecyclerView(view); // Pass the view
+        setupButtons(view);      // Pass the view
 
         fetchHistoryData(); // Initial data fetch for today
     }
 
-    private void bindViews(View view) {
+    private void bindViews(@NonNull View view) {
         recyclerView = view.findViewById(R.id.recycler_view_history);
         progressBar = view.findViewById(R.id.progress_bar_history);
         criticalOnlySwitch = view.findViewById(R.id.switch_critical_only);
     }
 
-    private void setupRecyclerView() {
+    private void setupRecyclerView(@NonNull View view) {
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new HistoryAdapter(requireContext(), eventList);
@@ -70,22 +68,23 @@ public class HistoryFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), layoutManager.getOrientation()));
     }
 
-    private void setupButtons() {
-        getView().findViewById(R.id.button_refresh).setOnClickListener(v -> fetchHistoryData());
+    private void setupButtons(@NonNull View view) {
+        ImageButton refreshButton = view.findViewById(R.id.button_refresh);
+        refreshButton.setOnClickListener(v -> fetchHistoryData());
         criticalOnlySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> fetchHistoryData());
 
-        getView().findViewById(R.id.button_today).setOnClickListener(v -> {
+        view.findViewById(R.id.button_today).setOnClickListener(v -> {
             selectedDate = Calendar.getInstance();
             fetchHistoryData();
         });
 
-        getView().findViewById(R.id.button_yesterday).setOnClickListener(v -> {
+        view.findViewById(R.id.button_yesterday).setOnClickListener(v -> {
             selectedDate = Calendar.getInstance();
             selectedDate.add(Calendar.DAY_OF_YEAR, -1);
             fetchHistoryData();
         });
 
-        getView().findViewById(R.id.button_select_date).setOnClickListener(v -> showDatePicker());
+        view.findViewById(R.id.button_select_date).setOnClickListener(v -> showDatePicker());
     }
 
     private void showDatePicker() {
@@ -110,10 +109,9 @@ public class HistoryFragment extends Fragment {
         apiService.getHistoryEvents(dateString, criticalOnly, new ApiService.ApiCallback<List<HistoryEvent>>() {
             @Override
             public void onSuccess(List<HistoryEvent> result) {
-                // Safety check: Make sure the fragment is still attached to an activity
-                if (getActivity() == null) return;
+                if (!isAdded()) return;
                 
-                getActivity().runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
                     eventList.clear();
                     eventList.addAll(result);
                     adapter.notifyDataSetChanged();
@@ -126,10 +124,9 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
-                // Safety check: Make sure the fragment is still attached to an activity
-                if (getActivity() == null) return;
+                if (!isAdded()) return;
                 
-                getActivity().runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
                     setLoading(false);
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
@@ -138,7 +135,11 @@ public class HistoryFragment extends Fragment {
     }
 
     private void setLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        if (progressBar != null) {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        }
+        if (recyclerView != null) {
+            recyclerView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        }
     }
 }
