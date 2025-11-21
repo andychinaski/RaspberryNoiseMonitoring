@@ -106,48 +106,49 @@ public class MonitorFragment extends Fragment {
     }
 
     private void fetchNoiseStats() {
-        // Only show the main progress bar on the initial load
-        if(isInitialLoad) {
-            setLoading(true);
+        if (apiService.isDeviceAvailable()) {
+            if(isInitialLoad) {
+                setLoading(true);
+            }
+            String dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
+
+            apiService.getNoiseStats(dateString, new ApiService.ApiCallback<NoiseStats>() {
+                @Override
+                public void onSuccess(NoiseStats result) {
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() -> {
+                        updateUi(result);
+                        setLoading(false);
+                        isInitialLoad = false;
+
+                        if (autoRefreshInterval > 0) {
+                            autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        setLoading(false);
+                        if (autoRefreshInterval > 0) {
+                            autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
+                        }
+                    });
+                }
+            });
+        } else {
+             if (autoRefreshInterval > 0) {
+                autoRefreshHandler.postDelayed(this::startAutoRefresh, autoRefreshInterval * 1000L);
+            }
         }
-
-        String dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
-
-        apiService.getNoiseStats(dateString, new ApiService.ApiCallback<NoiseStats>() {
-            @Override
-            public void onSuccess(NoiseStats result) {
-                if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> {
-                    updateUi(result);
-                    setLoading(false); // Hide progress bar
-                    isInitialLoad = false; // Mark that initial load is done
-
-                    // Schedule the next run only after the current one has succeeded.
-                    if (autoRefreshInterval > 0) {
-                        autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    setLoading(false);
-
-                    // Also schedule a retry on error to keep the loop going.
-                    if (autoRefreshInterval > 0) {
-                        autoRefreshHandler.postDelayed(autoRefreshRunnable, autoRefreshInterval * 1000L);
-                    }
-                });
-            }
-        });
     }
 
     private void updateUi(NoiseStats stats) {
         Context context = getContext();
-        if (context == null) return; // Final safety net
+        if (context == null) return;
 
         currentDb.setText(String.format(Locale.getDefault(), "%d dB", stats.getCurrentNoise()));
         currentStatus.setText(stats.getEventType());
@@ -172,7 +173,6 @@ public class MonitorFragment extends Fragment {
         maxToday.setText(String.format(Locale.getDefault(), "%d dB", stats.getMaxNoise()));
         notificationsToday.setText(String.valueOf(stats.getNotificationsSent()));
 
-        // Pass data to the chart
         lineChartView.setData(stats.getLast10Minutes());
     }
 
@@ -180,11 +180,9 @@ public class MonitorFragment extends Fragment {
         if (progressBar == null || contentGroup == null) return;
 
         if (isLoading && isInitialLoad) {
-            // On the very first load, show progress and hide content
             progressBar.setVisibility(View.VISIBLE);
             contentGroup.setVisibility(View.INVISIBLE);
         } else {
-            // On subsequent loads or after loading, hide progress and show content
             progressBar.setVisibility(View.GONE);
             contentGroup.setVisibility(View.VISIBLE);
         }

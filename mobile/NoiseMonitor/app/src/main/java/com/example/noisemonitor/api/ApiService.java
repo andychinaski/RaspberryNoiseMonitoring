@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -30,10 +29,6 @@ public class ApiService {
     private final Context context;
 
     private volatile boolean isDeviceAvailable = false;
-
-    private interface JsonParser<T> {
-        T parse(String jsonString) throws JSONException;
-    }
 
     public interface ApiCallback<T> {
         void onSuccess(T result);
@@ -63,19 +58,30 @@ public class ApiService {
         return isDeviceAvailable;
     }
 
-    public void refreshDeviceConnection(ApiCallback<Device> callback) {
-        String url = getBaseUrl() + "/device-info";
-        executeRequest(url, jsonString -> new Device(new JSONObject(jsonString)), new ApiCallback<Device>() {
-            @Override
-            public void onSuccess(Device result) {
-                isDeviceAvailable = true;
-                callback.onSuccess(result);
-            }
+    private String getBaseUrl() {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_API, DEFAULT_API_URL) + "/api";
+    }
 
-            @Override
-            public void onError(Exception e) {
+    // --- API Methods using OkHttp ---
+
+    public void refreshDeviceConnection(ApiCallback<Device> callback) {
+        Request request = new Request.Builder().url(getBaseUrl() + "/device-info").build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 isDeviceAvailable = false;
                 callback.onError(e);
+            }
+            @Override public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful() || responseBody == null) throw new IOException("Unexpected code " + response);
+                    Device device = new Device(new JSONObject(responseBody.string()));
+                    isDeviceAvailable = true;
+                    callback.onSuccess(device);
+                } catch (Exception e) {
+                    isDeviceAvailable = false;
+                    callback.onError(e);
+                }
             }
         });
     }
@@ -86,14 +92,23 @@ public class ApiService {
             return;
         }
         String url = getBaseUrl() + "/events?date=" + date + "&only_critical=" + (onlyCritical ? 1 : 0);
-        executeRequest(url, jsonString -> {
-            JSONArray jsonArray = new JSONArray(jsonString);
-            List<HistoryEvent> events = new ArrayList<>();
-            for (int i = 0; i < jsonArray.length(); i++) {
-                events.add(new HistoryEvent(jsonArray.getJSONObject(i)));
+        Request request = new Request.Builder().url(url).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(@NonNull Call call, @NonNull IOException e) { callback.onError(e); }
+            @Override public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful() || responseBody == null) throw new IOException("Unexpected code " + response);
+                    JSONArray jsonArray = new JSONArray(responseBody.string());
+                    List<HistoryEvent> events = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        events.add(new HistoryEvent(jsonArray.getJSONObject(i)));
+                    }
+                    callback.onSuccess(events);
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
             }
-            return events;
-        }, callback);
+        });
     }
 
     public void getAlerts(@NonNull String date, boolean successfullySent, ApiCallback<List<AlertEvent>> callback) {
@@ -102,14 +117,23 @@ public class ApiService {
             return;
         }
         String url = getBaseUrl() + "/notifications?date=" + date;
-        executeRequest(url, jsonString -> {
-            JSONArray jsonArray = new JSONArray(jsonString);
-            List<AlertEvent> alerts = new ArrayList<>();
-            for (int i = 0; i < jsonArray.length(); i++) {
-                alerts.add(new AlertEvent(jsonArray.getJSONObject(i)));
+        Request request = new Request.Builder().url(url).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(@NonNull Call call, @NonNull IOException e) { callback.onError(e); }
+            @Override public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful() || responseBody == null) throw new IOException("Unexpected code " + response);
+                    JSONArray jsonArray = new JSONArray(responseBody.string());
+                    List<AlertEvent> alerts = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        alerts.add(new AlertEvent(jsonArray.getJSONObject(i)));
+                    }
+                    callback.onSuccess(alerts);
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
             }
-            return alerts;
-        }, callback);
+        });
     }
 
     public void getNoiseStats(@NonNull String date, ApiCallback<NoiseStats> callback) {
@@ -118,36 +142,18 @@ public class ApiService {
             return;
         }
         String url = getBaseUrl() + "/noise-stats?date=" + date;
-        executeRequest(url, jsonString -> new NoiseStats(new JSONObject(jsonString)), callback);
-    }
-
-    private <T> void executeRequest(String urlString, JsonParser<T> parser, ApiCallback<T> callback) {
-        Request request = new Request.Builder().url(urlString).build();
-
+        Request request = new Request.Builder().url(url).build();
         client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                callback.onError(e);
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
+            @Override public void onFailure(@NonNull Call call, @NonNull IOException e) { callback.onError(e); }
+            @Override public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful() || responseBody == null) {
-                        throw new IOException("Request failed with code: " + response.code());
-                    }
-                    String jsonString = responseBody.string();
-                    T result = parser.parse(jsonString);
-                    callback.onSuccess(result);
+                    if (!response.isSuccessful() || responseBody == null) throw new IOException("Unexpected code " + response);
+                    NoiseStats stats = new NoiseStats(new JSONObject(responseBody.string()));
+                    callback.onSuccess(stats);
                 } catch (Exception e) {
                     callback.onError(e);
                 }
             }
         });
-    }
-
-    private String getBaseUrl() {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_API, DEFAULT_API_URL) + "/api";
     }
 }
