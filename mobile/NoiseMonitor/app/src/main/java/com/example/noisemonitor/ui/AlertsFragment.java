@@ -110,7 +110,9 @@ public class AlertsFragment extends Fragment {
         apiService.getAlerts(dateString, sentOnly, new ApiService.ApiCallback<List<AlertEvent>>() {
             @Override
             public void onSuccess(List<AlertEvent> result) {
+                // Safety check: Make sure the fragment is still attached to an activity
                 if (getActivity() == null) return;
+                
                 getActivity().runOnUiThread(() -> {
                     alertList.clear();
                     alertList.addAll(result);
@@ -124,7 +126,9 @@ public class AlertsFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
+                // Safety check: Make sure the fragment is still attached to an activity
                 if (getActivity() == null) return;
+                
                 getActivity().runOnUiThread(() -> {
                     setLoading(false);
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();

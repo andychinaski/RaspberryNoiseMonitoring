@@ -1,11 +1,15 @@
 package com.example.noisemonitor;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -23,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "NoiseMonitorPrefs";
     private static final String KEY_THEME_POSITION = "theme_position";
+    private View indicator;
+    private BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,21 +39,16 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        bottomNav = findViewById(R.id.bottom_navigation);
+        indicator = findViewById(R.id.bottom_nav_animated_indicator);
+
         bottomNav.setOnItemSelectedListener(navListener);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MonitorFragment()).commit();
-        }
-    }
 
-    private void applyTheme() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        int themePosition = prefs.getInt(KEY_THEME_POSITION, 0); // 0 for Светлая, 1 for Темная
-        if (themePosition == 0) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            // Use post() to reliably set the initial indicator position after the layout is complete.
+            bottomNav.post(() -> setInitialIndicatorPosition());
         }
     }
 
@@ -67,10 +68,55 @@ public class MainActivity extends AppCompatActivity {
 
         if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            animateIndicator(itemId);
             return true;
         }
         return false;
     };
+
+    private void setInitialIndicatorPosition() {
+        View targetView = bottomNav.findViewById(R.id.nav_monitor);
+        if (targetView == null) return;
+
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) indicator.getLayoutParams();
+        params.leftMargin = targetView.getLeft();
+        params.width = targetView.getWidth();
+        indicator.setLayoutParams(params);
+    }
+
+    private void animateIndicator(@IdRes int itemId) {
+        View targetView = bottomNav.findViewById(itemId);
+        if (targetView == null) return;
+
+        int start = indicator.getLeft();
+        int end = targetView.getLeft();
+        int widthStart = indicator.getWidth();
+        int widthEnd = targetView.getWidth();
+
+        ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
+        animator.setDuration(300);
+        animator.addUpdateListener(animation -> {
+            float fraction = animation.getAnimatedFraction();
+            int newLeft = (int) (start + (end - start) * fraction);
+            int newWidth = (int) (widthStart + (widthEnd - widthStart) * fraction);
+
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) indicator.getLayoutParams();
+            params.leftMargin = newLeft;
+            params.width = newWidth;
+            indicator.setLayoutParams(params);
+        });
+        animator.start();
+    }
+
+    private void applyTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int themePosition = prefs.getInt(KEY_THEME_POSITION, 0);
+        if (themePosition == 0) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -72,7 +72,10 @@ public class DeviceFragment extends Fragment {
         apiService.getDeviceData(new ApiService.ApiCallback<Device>() {
             @Override
             public void onSuccess(Device result) {
-                requireActivity().runOnUiThread(() -> {
+                // Safety check: Make sure the fragment is still attached to an activity
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     updateUiWithSuccessData(result);
                 });
@@ -80,7 +83,10 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
-                requireActivity().runOnUiThread(() -> {
+                // Safety check: Make sure the fragment is still attached to an activity
+                if (getActivity() == null) return;
+                
+                getActivity().runOnUiThread(() -> {
                     setLoadingState(false);
                     updateUiWithFailureState();
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();

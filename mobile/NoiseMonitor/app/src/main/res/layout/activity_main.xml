@@ -27,19 +27,32 @@
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottom_navigation"
-        android:layout_below="@+id/appbar" />
+        android:layout_above="@id/bottom_nav_container"
+        android:layout_below="@id/appbar" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
+    <FrameLayout
+        android:id="@+id/bottom_nav_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:elevation="0dp"
-        app:itemIconTint="@color/bottom_nav_item_color_selector"
-        app:itemTextColor="@color/bottom_nav_item_color_selector"
-        app:itemBackground="@drawable/bottom_nav_item_background"
-        app:labelVisibilityMode="labeled"
-        app:menu="@menu/bottom_menu" />
+        android:layout_alignParentBottom="true">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorSurface"
+            app:elevation="0dp"
+            app:itemIconTint="@color/bottom_nav_item_color_selector"
+            app:itemTextColor="@color/bottom_nav_item_color_selector"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_menu" />
+
+        <View
+            android:id="@+id/bottom_nav_animated_indicator"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:background="?attr/colorPrimary" />
+
+    </FrameLayout>
 
 </RelativeLayout>

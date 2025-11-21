@@ -110,7 +110,9 @@ public class HistoryFragment extends Fragment {
         apiService.getHistoryEvents(dateString, criticalOnly, new ApiService.ApiCallback<List<HistoryEvent>>() {
             @Override
             public void onSuccess(List<HistoryEvent> result) {
+                // Safety check: Make sure the fragment is still attached to an activity
                 if (getActivity() == null) return;
+                
                 getActivity().runOnUiThread(() -> {
                     eventList.clear();
                     eventList.addAll(result);
@@ -124,7 +126,9 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onError(Exception e) {
+                // Safety check: Make sure the fragment is still attached to an activity
                 if (getActivity() == null) return;
+                
                 getActivity().runOnUiThread(() -> {
                     setLoading(false);
                     Toast.makeText(getContext(), "API Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
