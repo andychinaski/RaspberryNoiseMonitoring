@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">NoiseMonitor</string>
+
+    <!-- Bottom menu items -->
+    <string name="menu_monitor">Monitor</string>
+    <string name="menu_history">History</string>
+    <string name="menu_alerts">Alerts</string>
+    <string name="menu_device">Device</string>
 </resources>
