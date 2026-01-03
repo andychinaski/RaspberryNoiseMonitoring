@@ -7,6 +7,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Шапка приложения -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/mainToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="?attr/colorPrimary"
+        android:title="@string/app_name"
+        android:titleTextColor="@android:color/white"
+        android:elevation="4dp"/>
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"

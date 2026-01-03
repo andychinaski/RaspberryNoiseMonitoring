@@ -1,14 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DashboardFragment">
+    android:padding="16dp"
+    android:gravity="center_horizontal">
 
+    <!-- Текущий уровень шума -->
     <TextView
-        android:text="Экран 1: Уровень шума"
-        android:textSize="20sp"
+        android:id="@+id/currentNoise"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="0 дБ"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="8dp"/>
 
-</FrameLayout>
+    <!-- Тип события -->
+    <TextView
+        android:id="@+id/eventType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NORMAL"
+        android:textSize="18sp"
+        android:paddingBottom="16dp"/>
+
+    <!-- График последних 10 минут -->
+    <FrameLayout
+        android:id="@+id/chartContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#EEEEEE"
+        android:padding="8dp"/>
+
+    <!-- Статистика -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/minMax"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Мин: 0 дБ | Макс: 0 дБ"
+            android:textSize="16sp"
+            android:paddingBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/notificationsSent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Отправлено уведомлений: 0"
+            android:textSize="16sp"
+            android:paddingBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/lastMeasurement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Последний замер: —"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+</LinearLayout>
