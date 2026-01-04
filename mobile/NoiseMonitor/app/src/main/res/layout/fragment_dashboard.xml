@@ -57,11 +57,10 @@
             android:textSize="16sp"
             android:paddingBottom="4dp"/>
 
-        <com.github.mikephil.charting.charts.LineChart
+        <com.example.noisemonitor.ui.SimpleLineChartView
             android:id="@+id/noiseChart"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="150dp"
             android:background="#EEEEEE"
             android:padding="8dp"/>
 
