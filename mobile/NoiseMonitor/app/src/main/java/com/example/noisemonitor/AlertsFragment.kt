@@ -1,23 +1,22 @@
 package com.example.noisemonitor
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.noisemonitor.databinding.FragmentAlertsBinding
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.example.noisemonitor.network.RetrofitClient
+
 
 class AlertsFragment : Fragment() {
 
     private var _binding: FragmentAlertsBinding? = null
     private val binding get() = _binding!!
-
-    private val dummyList = listOf(
-        AlertEvent("03/01/2026 12:15", "DELIVERED"),
-        AlertEvent("03/01/2026 12:20", "FAILED"),
-        AlertEvent("03/01/2026 12:25", "PENDING")
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,9 +28,28 @@ class AlertsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.alertsRecycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.alertsRecycler.adapter = AlertsAdapter(dummyList)
+
+        Log.d("ALERTS", "AlertsFragment открыт")
+
+        binding.alertsRecycler.layoutManager =
+            LinearLayoutManager(requireContext())
+
+        loadAlerts()
     }
+
+    private fun loadAlerts() {
+        Log.d("ALERTS", "Запрашиваем уведомления...")
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val alerts = RetrofitClient.api.getNotifications()
+                binding.alertsRecycler.adapter = AlertsAdapter(alerts)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
