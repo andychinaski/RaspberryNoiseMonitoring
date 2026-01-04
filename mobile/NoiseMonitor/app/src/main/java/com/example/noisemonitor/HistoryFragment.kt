@@ -5,20 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.noisemonitor.databinding.FragmentHistoryBinding
+import com.example.noisemonitor.network.RetrofitClient
 
 class HistoryFragment : Fragment() {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
-
-    // Тут пока заглушки, позже будет API
-    private val dummyList = listOf(
-        Measurement("03/01/2026 12:15", 65, "NORMAL"),
-        Measurement("03/01/2026 12:20", 70, "WARNING"),
-        Measurement("03/01/2026 12:25", 90, "CRITICAL")
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,7 +29,15 @@ class HistoryFragment : Fragment() {
 
         // 1️⃣ Настраиваем RecyclerView
         binding.measurementsRecycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.measurementsRecycler.adapter = HistoryAdapter(dummyList)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val events = RetrofitClient.api.getEvents()
+                binding.measurementsRecycler.adapter = HistoryAdapter(events)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     override fun onDestroyView() {
