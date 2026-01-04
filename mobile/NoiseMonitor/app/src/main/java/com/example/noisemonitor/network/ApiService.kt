@@ -3,7 +3,9 @@ package com.example.noisemonitor.network
 import com.example.noisemonitor.AlertEvent
 import com.example.noisemonitor.DeviceInfo
 import com.example.noisemonitor.HistoryEvent
+import com.example.noisemonitor.NoiseStats
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -15,5 +17,8 @@ interface ApiService {
 
     @GET("/api/events")
     suspend fun getEvents(): List<HistoryEvent>
+
+    @GET("/api/noise-stats")
+    suspend fun getNoiseStats(@Query("date") date: String): NoiseStats
 
 }

@@ -1,71 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:gravity="center_horizontal">
+    android:padding="16dp">
 
-    <!-- Текущий уровень шума -->
-    <TextView
-        android:id="@+id/currentNoise"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0 дБ"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:paddingBottom="8dp"/>
-
-    <!-- Тип события -->
-    <TextView
-        android:id="@+id/eventType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="NORMAL"
-        android:textSize="18sp"
-        android:paddingBottom="16dp"/>
-
-    <!-- График последних 10 минут -->
-    <FrameLayout
-        android:id="@+id/chartContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#EEEEEE"
-        android:padding="8dp"/>
-
-    <!-- Статистика -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="16dp"
         android:gravity="center_horizontal">
 
+        <!-- Текущий уровень шума -->
         <TextView
-            android:id="@+id/minMax"
+            android:id="@+id/currentNoiseLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Мин: 0 дБ | Макс: 0 дБ"
+            android:text="@string/current_noise_label"
             android:textSize="16sp"
             android:paddingBottom="4dp"/>
 
         <TextView
-            android:id="@+id/notificationsSent"
+            android:id="@+id/currentNoise"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Отправлено уведомлений: 0"
+            android:text="0 дБ"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingBottom="8dp"/>
+
+        <!-- Тип события -->
+        <TextView
+            android:id="@+id/eventTypeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/event_type_label"
             android:textSize="16sp"
             android:paddingBottom="4dp"/>
 
         <TextView
-            android:id="@+id/lastMeasurement"
+            android:id="@+id/eventType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Последний замер: —"
-            android:textSize="16sp"/>
+            android:text="NORMAL"
+            android:textSize="18sp"
+            android:paddingBottom="16dp"/>
+
+        <!-- График последних 10 минут -->
+        <TextView
+            android:id="@+id/last10MinLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/last_10_min_label"
+            android:textSize="16sp"
+            android:paddingBottom="4dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/noiseChart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#EEEEEE"
+            android:padding="8dp"/>
+
+        <!-- Статистика -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/minLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/min_noise_label"
+                android:textSize="16sp"
+                android:paddingBottom="2dp"/>
+
+            <TextView
+                android:id="@+id/minNoise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 дБ"
+                android:textSize="16sp"
+                android:paddingBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/maxLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/max_noise_label"
+                android:textSize="16sp"
+                android:paddingBottom="2dp"/>
+
+            <TextView
+                android:id="@+id/maxNoise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 дБ"
+                android:textSize="16sp"
+                android:paddingBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/notificationsSentLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/notifications_sent_label"
+                android:textSize="16sp"
+                android:paddingBottom="2dp"/>
+
+            <TextView
+                android:id="@+id/notificationsSent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="16sp"
+                android:paddingBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/lastMeasurementLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/last_measurement_label"
+                android:textSize="16sp"
+                android:paddingBottom="2dp"/>
+
+            <TextView
+                android:id="@+id/lastMeasurement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textSize="16sp"
+                android:paddingBottom="4dp"/>
+        </LinearLayout>
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>
