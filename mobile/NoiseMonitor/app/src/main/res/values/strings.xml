@@ -8,4 +8,12 @@
     <string name="menu_device">Device</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Device fragment -->
+    <string name="device_name_label">Название устройства:</string>
+    <string name="device_status_label">Статус активности:</string>
+    <string name="device_uptime_label">Uptime:</string>
+    <string name="device_frequency_label">Частота измерений:</string>
+    <string name="status_online">Онлайн</string>
+    <string name="status_offline">Офлайн</string>
 </resources>
