@@ -38,6 +38,8 @@
             app:itemIconTint="@color/bottom_nav_icon_color"
             app:itemTextColor="@color/bottom_nav_text_color"
             app:labelVisibilityMode="labeled"
+            app:itemTextAppearanceActive="@style/TextAppearance.NoiseMonitor.BottomNav"
+            app:itemTextAppearanceInactive="@style/TextAppearance.NoiseMonitor.BottomNav"
             app:menu="@menu/bottom_menu" />
 
     </FrameLayout>
