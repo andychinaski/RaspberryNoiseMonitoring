@@ -68,7 +68,7 @@ class DashboardFragment : Fragment() {
             else -> R.color.text_secondary
         }
 
-        binding.eventIndicator.backgroundTintList =
+        binding.eventIndicator.imageTintList =
             ColorStateList.valueOf(requireContext().getColor(color))
     }
 
