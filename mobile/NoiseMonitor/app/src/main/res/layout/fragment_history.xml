@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingBottom="8dp">
 
         <TextView
             android:id="@+id/filterLabel"
@@ -34,16 +35,28 @@
             android:src="@drawable/ic_refresh"
             android:background="?selectableItemBackgroundBorderless"
             app:tint="@color/icon_tint_selector"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            android:contentDescription="Обновить"/>
     </LinearLayout>
 
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/measurementsRecycler"
+    <!-- RecyclerView в CardView -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingTop="8dp"/>
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        android:layout_marginBottom="8dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/measurementsRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/divider"
+            android:clipToPadding="false"/>
+
+    </androidx.cardview.widget.CardView>
 
     <!-- Footer -->
     <LinearLayout
@@ -51,7 +64,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:paddingTop="8dp"
         android:weightSum="3">
 
         <Button

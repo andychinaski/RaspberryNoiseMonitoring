@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.noisemonitor.databinding.FragmentHistoryBinding
 import com.example.noisemonitor.network.RetrofitClient
+import androidx.recyclerview.widget.DividerItemDecoration
 
 class HistoryFragment : Fragment() {
 
@@ -28,7 +29,17 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 1️⃣ Настраиваем RecyclerView
-        binding.measurementsRecycler.layoutManager = LinearLayoutManager(requireContext())
+        val layoutManager = LinearLayoutManager(requireContext())
+        binding.measurementsRecycler.layoutManager = layoutManager
+        
+        // Добавляем разделитель
+        val dividerItemDecoration = DividerItemDecoration(
+            binding.measurementsRecycler.context,
+            layoutManager.orientation
+        )
+        // Чтобы изменить цвет разделителя, можно создать свой Drawable и установить его:
+        // dividerItemDecoration.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
+        binding.measurementsRecycler.addItemDecoration(dividerItemDecoration)
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
