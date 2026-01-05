@@ -1,6 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Base application theme -->
     <style name="Base.Theme.NoiseMonitor" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:lineSpacingMultiplier">1.0</item>
+        <!-- 👇 Ключевая настройка -->
+        <item name="android:includeFontPadding">true</item>
+        <!-- Цвета -->
         <item name="android:windowBackground">@color/background</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_variant</item>
@@ -15,7 +21,21 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="colorControlNormal">@color/divider</item>
+
+        <!-- 👇 ГЛОБАЛЬНЫЙ ШРИФТ MONTserrat (ключевые строки) -->
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="fontFamily">@font/montserrat</item>
+
+        <!-- Для совместимости со старыми компонентами -->
+        <item name="android:textViewStyle">@style/Widget.NoiseMonitor.TextView</item>
     </style>
 
+    <!-- Стиль TextView для явного управления (на случай, если android:fontFamily не сработает) -->
+    <style name="Widget.NoiseMonitor.TextView" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/montserrat</item>
+    </style>
+
+    <!-- Основная тема -->
     <style name="Theme.NoiseMonitor" parent="Base.Theme.NoiseMonitor" />
+
 </resources>

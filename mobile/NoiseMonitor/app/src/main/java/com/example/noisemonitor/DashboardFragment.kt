@@ -1,5 +1,6 @@
 package com.example.noisemonitor
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -26,25 +27,20 @@ class DashboardFragment : Fragment() {
     }
 
     private fun loadNoiseStats(date: String = getCurrentDate() ) {
-        Log.d("DASHBOARD", "Запрос noise stats, date=$date")
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val stats = RetrofitClient.api.getNoiseStats(date)
 
                 // Заполняем поля UI
-                binding.currentNoise.text = stats.currentNoise.toString()
+                binding.currentNoise.text = "${stats.currentNoise.toString()} дБ"
                 binding.maxNoise.text = stats.maxNoise.toString()
                 binding.minNoise.text = stats.minNoise.toString()
                 binding.eventType.text = stats.eventType
                 binding.lastMeasurement.text = stats.currentTimestamp
+                applyEventType(stats.eventType)
 
                 // Отрисовываем график
                 binding.noiseChart.setData(stats.last10minutes)
-
-                Log.d(
-                    "DASHBOARD",
-                    "Ответ: current=${stats.currentNoise}, ts=${stats.currentTimestamp}"
-                )
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -54,11 +50,26 @@ class DashboardFragment : Fragment() {
                 binding.minNoise.text = "--"
                 binding.eventType.text = "--"
                 binding.lastMeasurement.text = "--"
+                applyEventType("--")
                 // Очищаем график при ошибке
                 binding.noiseChart.clear()
             }
 
         }
+    }
+
+    private fun applyEventType(type: String) {
+        binding.eventType.text = type
+
+        val color = when (type) {
+            "NORMAL" -> R.color.primary
+            "WARNING" -> R.color.warning
+            "CRITICAL" -> R.color.error
+            else -> R.color.text_secondary
+        }
+
+        binding.eventIndicator.backgroundTintList =
+            ColorStateList.valueOf(requireContext().getColor(color))
     }
 
     private fun getCurrentDate(): String {

@@ -2,12 +2,10 @@
     <string name="app_name">NoiseMonitor</string>
 
     <!-- Bottom menu items -->
-    <string name="menu_monitor">Monitor</string>
-    <string name="menu_history">History</string>
-    <string name="menu_alerts">Alerts</string>
-    <string name="menu_device">Device</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_monitor">Статус</string>
+    <string name="menu_history">События</string>
+    <string name="menu_alerts">Уведомления</string>
+    <string name="menu_device">Устройство</string>
 
     <!-- Device fragment -->
     <string name="device_name_label">Название устройства:</string>

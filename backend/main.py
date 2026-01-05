@@ -32,6 +32,8 @@ if __name__ == '__main__':
 
     # Запуск мониторинга на 1 час
     start_time = time.time()
-    while time.time() - start_time < 3600:
+    print("Анализ уровня шума...")
+    while time.time() - start_time < 3600:        
         analyzer.analyze_noise()  # Анализируем уровень шума
         time.sleep(5)  # Задержка в 5 секунд между анализами
+    print("Завершение мониторинга.")
