@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.noisemonitor.databinding.FragmentHistoryBinding
 import com.example.noisemonitor.network.RetrofitClient
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.core.content.ContextCompat
 
 class HistoryFragment : Fragment() {
 
@@ -37,8 +38,11 @@ class HistoryFragment : Fragment() {
             binding.measurementsRecycler.context,
             layoutManager.orientation
         )
-        // Чтобы изменить цвет разделителя, можно создать свой Drawable и установить его:
-        // dividerItemDecoration.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
+        // Устанавливаем кастомный разделитель (drawable), который мы создали
+        ContextCompat.getDrawable(requireContext(), R.drawable.divider_drawable)?.let {
+            dividerItemDecoration.setDrawable(it)
+        }
+        
         binding.measurementsRecycler.addItemDecoration(dividerItemDecoration)
 
         viewLifecycleOwner.lifecycleScope.launch {
