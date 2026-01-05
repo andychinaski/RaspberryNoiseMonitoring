@@ -11,6 +11,8 @@ import com.example.noisemonitor.databinding.FragmentDashboardBinding
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.example.noisemonitor.network.RetrofitClient
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class DashboardFragment : Fragment() {
 
@@ -33,10 +35,14 @@ class DashboardFragment : Fragment() {
 
                 // Заполняем поля UI
                 binding.currentNoise.text = "${stats.currentNoise.toString()} дБ"
-                binding.maxNoise.text = stats.maxNoise.toString()
-                binding.minNoise.text = stats.minNoise.toString()
+                binding.maxNoise.text = "${stats.maxNoise.toString()} дБ"
+                binding.minNoise.text = "${stats.minNoise.toString()} дБ"
                 binding.eventType.text = stats.eventType
-                binding.lastMeasurement.text = stats.currentTimestamp
+                binding.notificationsSent.text = stats.notificationsSent.toString()
+                
+                // Форматируем дату
+                binding.lastMeasurement.text = formatTimestamp(stats.currentTimestamp)
+                
                 applyEventType(stats.eventType)
 
                 // Отрисовываем график
@@ -45,12 +51,13 @@ class DashboardFragment : Fragment() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Если ошибка, ставим прочерки и статус offline
-                binding.currentNoise.text = "--"
-                binding.maxNoise.text = "--"
-                binding.minNoise.text = "--"
-                binding.eventType.text = "--"
-                binding.lastMeasurement.text = "--"
-                applyEventType("--")
+                binding.currentNoise.text = getString(R.string.no_value)
+                binding.maxNoise.text = getString(R.string.no_value)
+                binding.minNoise.text = getString(R.string.no_value)
+                binding.eventType.text = getString(R.string.no_connect)
+                binding.lastMeasurement.text = getString(R.string.no_value)
+                binding.notificationsSent.text = getString(R.string.no_value)
+                applyEventType()
                 // Очищаем график при ошибке
                 binding.noiseChart.clear()
             }
@@ -58,9 +65,19 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun applyEventType(type: String) {
-        binding.eventType.text = type
+    private fun formatTimestamp(timestamp: String): String {
+        return try {
+            // Предполагаем, что сервер присылает "yyyy-MM-dd HH:mm:ss"
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("HH:mm:ss dd.MM.yyyy", Locale.getDefault())
+            val date = inputFormat.parse(timestamp)
+            outputFormat.format(date!!)
+        } catch (e: Exception) {
+            timestamp // Если не удалось распарсить, возвращаем как есть
+        }
+    }
 
+    private fun applyEventType(type: String = "") {
         val color = when (type) {
             "NORMAL" -> R.color.primary
             "WARNING" -> R.color.warning
@@ -73,7 +90,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun getCurrentDate(): String {
-        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return sdf.format(java.util.Date())
     }
 

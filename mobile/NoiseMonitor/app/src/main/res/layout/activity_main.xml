@@ -15,6 +15,7 @@
         android:background="@color/surface"
         android:title="@string/app_name"
         app:titleTextColor="@android:color/white"
+        app:titleTextAppearance="@style/TextAppearance.NoiseMonitor.ToolbarTitle"
         android:elevation="4dp"/>
 
     <FrameLayout

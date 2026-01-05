@@ -19,8 +19,11 @@
     <string name="current_noise_label">Текущий уровень шума</string>
     <string name="event_type_label">Тип события</string>
     <string name="last_10_min_label">Последние 10 минут</string>
-    <string name="min_noise_label">Минимальный уровень шума:</string>
-    <string name="max_noise_label">Максимальный уровень шума:</string>
+    <string name="min_noise_label">Минимальный уровень:</string>
+    <string name="max_noise_label">Максимальный уровень:</string>
     <string name="notifications_sent_label">Отправлено уведомлений:</string>
-    <string name="last_measurement_label">Последний замер:</string>
+    <string name="last_measurement_label">Обновлено:</string>
+
+    <string name="no_value">--</string>
+    <string name="no_connect">No connection</string>
 </resources>

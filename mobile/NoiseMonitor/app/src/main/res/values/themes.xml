@@ -39,6 +39,12 @@
         <item name="fontFamily">@font/montserrat_semibold</item>
     </style>
 
+    <!-- Стиль для заголовка Toolbar -->
+    <style name="TextAppearance.NoiseMonitor.ToolbarTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <style name="Widget.NoiseMonitor.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="itemTextAppearanceActive">@style/TextAppearance.NoiseMonitor.BottomNav</item>
         <item name="itemTextAppearanceInactive">@style/TextAppearance.NoiseMonitor.BottomNav</item>

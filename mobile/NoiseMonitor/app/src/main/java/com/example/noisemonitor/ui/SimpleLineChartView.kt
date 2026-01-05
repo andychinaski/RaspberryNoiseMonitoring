@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import com.example.noisemonitor.NoiseEvent
 import com.example.noisemonitor.R
@@ -36,6 +37,10 @@ class SimpleLineChartView @JvmOverloads constructor(
     private val gridColor = ContextCompat.getColor(context, R.color.divider)
     private val textColor = ContextCompat.getColor(context, R.color.text_secondary)
 
+    // Typefaces (Fonts)
+    private val montserratSemibold = ResourcesCompat.getFont(context, R.font.montserrat_semibold)
+    private val montserratBold = ResourcesCompat.getFont(context, R.font.montserrat_bold)
+
     // Paints
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = surfaceColor
@@ -65,13 +70,14 @@ class SimpleLineChartView @JvmOverloads constructor(
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = textColor
         textSize = 28f
+        typeface = montserratSemibold
         textAlign = Paint.Align.RIGHT
     }
 
     private val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = textColor
         textSize = 32f
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        typeface = montserratBold
         textAlign = Paint.Align.LEFT
     }
 

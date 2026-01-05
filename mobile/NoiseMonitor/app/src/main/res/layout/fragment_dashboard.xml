@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:padding="16dp">
 
     <LinearLayout
@@ -12,49 +13,59 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal">
 
-        <!-- Текущий уровень шума -->
-        <TextView
-            android:id="@+id/currentNoiseLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/current_noise_label"
-            android:textSize="16sp"
-            android:paddingBottom="4dp"/>
-
-        <TextView
-            android:id="@+id/currentNoise"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0 дБ"
-            android:textSize="80sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:paddingBottom="8dp"/>
-
-        <!-- Тип события -->
+        <!-- Верхний блок информации (занимает основное пространство) -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
 
-            <ImageView
-                android:id="@+id/eventIndicator"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:src="@drawable/ic_circle"
-                android:layout_marginEnd="8dp"
-                android:baselineAlignBottom="true" />
-
+            <!-- Текущий уровень шума -->
             <TextView
-                android:id="@+id/eventType"
+                android:id="@+id/currentNoiseLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="NORMAL"
-                android:textSize="18sp"
-                android:includeFontPadding="false" />
+                android:text="@string/current_noise_label"
+                android:textSize="16sp"
+                android:paddingBottom="4dp"
+                app:fontFamily="@font/montserrat_semibold"/>
 
+            <TextView
+                android:id="@+id/currentNoise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_value"
+                android:textSize="80sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:paddingBottom="8dp"/>
+
+            <!-- Тип события -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/eventIndicator"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:src="@drawable/ic_circle"
+                    app:tint="@color/text_secondary"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/eventType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_connect"
+                    android:textSize="18sp"
+                    android:includeFontPadding="false"
+                    app:fontFamily="@font/montserrat_semibold"/>
+
+            </LinearLayout>
         </LinearLayout>
 
         <!-- График последних 10 минут -->
@@ -80,101 +91,138 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-                <TextView
-                    android:id="@+id/minLabel"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                <!-- 1. Минимальный уровень -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/min_noise_label"
-                    android:textSize="16sp"
-                    android:paddingBottom="2dp"/>
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/minLabel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/min_noise_label"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_medium"/>
 
-                <TextView
-                    android:id="@+id/minNoise"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/minNoise"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_value"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_semibold"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- 2. Максимальный уровень -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="0 дБ"
-                    android:textSize="16sp"
-                    android:paddingBottom="4dp"/>
-            </LinearLayout>
+                    android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                    <TextView
+                        android:id="@+id/maxLabel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/max_noise_label"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_medium"/>
 
-                <TextView
-                    android:id="@+id/maxLabel"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    <TextView
+                        android:id="@+id/maxNoise"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_value"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_semibold"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- 3. Отправлено уведомлений -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/max_noise_label"
-                    android:textSize="16sp"
-                    android:paddingBottom="2dp"/>
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/maxNoise"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/notificationsSentLabel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/notifications_sent_label"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_medium"/>
+
+                    <TextView
+                        android:id="@+id/notificationsSent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_value"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_semibold"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- 4. Последний замер -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="0 дБ"
-                    android:textSize="16sp"
-                    android:paddingBottom="4dp"/>
+                    android:orientation="horizontal">
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/lastMeasurementLabel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/last_measurement_label"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_medium"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-
-                <TextView
-                    android:id="@+id/notificationsSentLabel"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="@string/notifications_sent_label"
-                    android:textSize="16sp"
-                    android:paddingBottom="2dp"/>
-
-                <TextView
-                    android:id="@+id/notificationsSent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="16sp"
-                    android:paddingBottom="4dp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-
-                <TextView
-                    android:id="@+id/lastMeasurementLabel"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="@string/last_measurement_label"
-                    android:textSize="16sp"
-                    android:paddingBottom="2dp"/>
-
-                <TextView
-                    android:id="@+id/lastMeasurement"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="—"
-                    android:textSize="16sp"
-                    android:paddingBottom="4dp"/>
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/lastMeasurement"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_value"
+                        android:textSize="16sp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        app:fontFamily="@font/montserrat_semibold"/>
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
