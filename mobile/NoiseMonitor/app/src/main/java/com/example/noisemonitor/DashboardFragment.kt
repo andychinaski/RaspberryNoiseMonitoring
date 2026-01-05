@@ -25,13 +25,8 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        loadNoiseStats()
-    }
-
     private fun loadNoiseStats(date: String = getCurrentDate() ) {
+        Log.d("DASHBOARD", "Запрос noise stats, date=$date")
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val stats = RetrofitClient.api.getNoiseStats(date)
@@ -46,6 +41,11 @@ class DashboardFragment : Fragment() {
                 // Отрисовываем график
                 binding.noiseChart.setData(stats.last10minutes)
 
+                Log.d(
+                    "DASHBOARD",
+                    "Ответ: current=${stats.currentNoise}, ts=${stats.currentTimestamp}"
+                )
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Если ошибка, ставим прочерки и статус offline
@@ -57,6 +57,7 @@ class DashboardFragment : Fragment() {
                 // Очищаем график при ошибке
                 binding.noiseChart.clear()
             }
+
         }
     }
 
@@ -65,6 +66,10 @@ class DashboardFragment : Fragment() {
         return sdf.format(java.util.Date())
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadNoiseStats()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

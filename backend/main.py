@@ -30,8 +30,8 @@ if __name__ == '__main__':
     server_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 5000, 'debug': False})
     server_thread.start()
 
-    # Запуск мониторинга на 2 минуты
+    # Запуск мониторинга на 1 час
     start_time = time.time()
-    while time.time() - start_time < 1200:
+    while time.time() - start_time < 3600:
         analyzer.analyze_noise()  # Анализируем уровень шума
         time.sleep(5)  # Задержка в 5 секунд между анализами
