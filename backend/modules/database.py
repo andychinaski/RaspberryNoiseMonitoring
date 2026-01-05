@@ -210,6 +210,7 @@ def get_sent_notifications_by_date(date=None):
             WHERE DATE(sent_at) = ?
             ORDER BY sent_at DESC
         """
+        query += " LIMIT 20" # ограничение на 20 записей
         cursor.execute(query, (date,))
     else:
         query = """
@@ -221,6 +222,7 @@ def get_sent_notifications_by_date(date=None):
             FROM telegram_notifications
             ORDER BY sent_at DESC
         """
+        query += " LIMIT 20" # ограничение на 20 записей
         cursor.execute(query)
 
     rows = cursor.fetchall()
@@ -270,6 +272,7 @@ def get_events_by_date(date=None, only_critical=False):
         query += " AND event IN ('WARNING', 'CRITICAL')"
 
     query += " ORDER BY timestamp DESC"
+    query += " LIMIT 20" # ограничение на 20 записей
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
