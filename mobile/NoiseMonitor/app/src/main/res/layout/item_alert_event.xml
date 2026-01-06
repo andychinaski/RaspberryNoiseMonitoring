@@ -1,27 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:gravity="center_vertical">
+    android:orientation="vertical"
+    android:padding="12dp">
 
-    <TextView
-        android:id="@+id/textTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <!-- Верхний ряд: иконка, дата, статус -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
+        <!-- Иконка Telegram -->
+        <ImageView
+            android:id="@+id/imageViewTelegram"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_telegram"
+            app:tint="@color/white"
+            android:layout_marginEnd="12dp"/>
+
+        <!-- Дата и статус -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/textTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="10:30:00"
+                    android:textSize="14sp"
+                    app:fontFamily="@font/montserrat_semibold"/>
+
+                <View
+                    android:id="@+id/status_indicator"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ic_circle"
+                    android:backgroundTint="@color/warning"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Текст сообщения -->
     <TextView
         android:id="@+id/textMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"/>
-
-    <TextView
-        android:id="@+id/textStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"/>
+        android:text="This is a sample alert message."
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"/>
 
 </LinearLayout>

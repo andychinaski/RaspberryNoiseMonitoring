@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.example.noisemonitor.network.RetrofitClient
-
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.core.content.ContextCompat
 
 class AlertsFragment : Fragment() {
 
@@ -31,8 +32,18 @@ class AlertsFragment : Fragment() {
 
         Log.d("ALERTS", "AlertsFragment открыт")
 
-        binding.alertsRecycler.layoutManager =
-            LinearLayoutManager(requireContext())
+        val layoutManager = LinearLayoutManager(requireContext())
+        binding.alertsRecycler.layoutManager = layoutManager
+
+        // Добавляем разделитель
+        val dividerItemDecoration = DividerItemDecoration(
+            binding.alertsRecycler.context,
+            layoutManager.orientation
+        )
+        ContextCompat.getDrawable(requireContext(), R.drawable.divider_drawable)?.let {
+            dividerItemDecoration.setDrawable(it)
+        }
+        binding.alertsRecycler.addItemDecoration(dividerItemDecoration)
 
         loadAlerts()
     }
