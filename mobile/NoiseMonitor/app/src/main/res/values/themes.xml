@@ -73,13 +73,13 @@
         <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.NoiseMonitor.Title.Text</item>
         <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.NoiseMonitor.Body.Text</item>
     </style>
-    
+
     <style name="MaterialAlertDialog.NoiseMonitor.Title.Text" parent="MaterialAlertDialog.Material3.Title.Text">
         <item name="android:textColor">@color/text_primary</item>
         <item name="fontFamily">@font/montserrat_bold</item>
         <item name="android:textSize">20sp</item>
     </style>
-    
+
     <style name="MaterialAlertDialog.NoiseMonitor.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
         <item name="android:textColor">@color/text_primary</item>
         <item name="fontFamily">@font/montserrat_semibold</item>
@@ -95,7 +95,19 @@
         <item name="bottomNavigationStyle">@style/Widget.NoiseMonitor.BottomNavigationView</item>
     </style>
 
+    <style name="Widget.NoiseMonitor.SpinnerItem" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:background">@color/surface</item>
+    </style>
+
+    <style name="Widget.NoiseMonitor.SpinnerDropDownItem" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:background">@color/surface</item>
+    </style>
+
     <!-- Основная тема -->
     <style name="Theme.NoiseMonitor" parent="Base.Theme.NoiseMonitor.Fixed" />
+
+
 
 </resources>

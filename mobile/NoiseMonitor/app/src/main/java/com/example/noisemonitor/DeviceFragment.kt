@@ -1,10 +1,14 @@
 package com.example.noisemonitor
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.noisemonitor.databinding.FragmentDeviceBinding
@@ -18,6 +22,10 @@ class DeviceFragment : Fragment() {
     private var _binding: FragmentDeviceBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var prefs: SharedPreferences
+
+    private val updatePeriods = listOf("none", "5 сек", "10 сек", "20 сек", "30 сек")
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,6 +38,8 @@ class DeviceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        prefs = requireContext().getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        setupAutoUpdateSpinner()
         loadDeviceInfo()
 
         binding.rebootButton.setOnClickListener { 
@@ -38,6 +48,17 @@ class DeviceFragment : Fragment() {
 
         binding.refreshButton.setOnClickListener {
             refreshDeviceInfo()
+        }
+
+        binding.saveButton.setOnClickListener{
+            val selectedPeriod = binding.autoUpdateSpinner.selectedItem as String
+            prefs.edit().putString("auto_update_period", selectedPeriod).apply()
+            Toast.makeText(requireContext(), "Настройки сохранены", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.discardButton.setOnClickListener{
+            val savedPeriod = prefs.getString("auto_update_period", "none")
+            binding.autoUpdateSpinner.setSelection(updatePeriods.indexOf(savedPeriod))
         }
     }
 
@@ -128,6 +149,16 @@ class DeviceFragment : Fragment() {
     private fun hideDeviceInfoLoading() {
         binding.deviceInfoProgress.visibility = View.GONE
         binding.deviceInfoContent.visibility = View.VISIBLE
+    }
+
+    private fun setupAutoUpdateSpinner() {
+        val adapter = ArrayAdapter(requireContext(), R.layout.spinner_item, updatePeriods)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+
+        binding.autoUpdateSpinner.adapter = adapter
+
+        val savedPeriod = prefs.getString("auto_update_period", "none")
+        binding.autoUpdateSpinner.setSelection(updatePeriods.indexOf(savedPeriod))
     }
 
     override fun onDestroyView() {
