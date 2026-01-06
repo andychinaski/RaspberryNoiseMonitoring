@@ -187,49 +187,44 @@ def get_last_notification_date():
 
     return last_sent_at
 
-def get_sent_notifications_by_date(date=None):
+def get_sent_notifications_by_date(date=None, only_sent=False):
     """
-    Получение отправленных уведомлений из таблицы telegram_notifications.
-    Если дата передана, возвращаются уведомления только за этот день.
-    Если дата не указана, возвращаются все уведомления.
+    Получение уведомлений из таблицы telegram_notifications.
 
-    :param date: Дата в формате 'YYYY-MM-DD' (опционально).
-    :return: Список уведомлений с деталями (ID, сообщение, дата отправки, статус).
+    - date: 'YYYY-MM-DD' или None
+    - only_sent: если True — только со статусом 'sent'
     """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
-    if date:
-        query = """
-            SELECT 
-                id,
-                message,
-                sent_at,
-                status
-            FROM telegram_notifications
-            WHERE DATE(sent_at) = ?
-            ORDER BY sent_at DESC
-        """
-        query += " LIMIT 20" # ограничение на 20 записей
-        cursor.execute(query, (date,))
-    else:
-        query = """
-            SELECT 
-                id,
-                message,
-                sent_at,
-                status
-            FROM telegram_notifications
-            ORDER BY sent_at DESC
-        """
-        query += " LIMIT 20" # ограничение на 20 записей
-        cursor.execute(query)
+    query = """
+        SELECT
+            id,
+            message,
+            sent_at,
+            status
+        FROM telegram_notifications
+        WHERE 1 = 1
+    """
+    params = []
 
+    # фильтр по дате
+    if date:
+        query += " AND DATE(sent_at) = ?"
+        params.append(date)
+
+    # фильтр по статусу
+    if only_sent:
+        query += " AND status = 'sent'"
+
+    query += " ORDER BY sent_at DESC"
+    query += " LIMIT 20"
+
+    cursor.execute(query, params)
     rows = cursor.fetchall()
     conn.close()
 
-    # Преобразуем результаты в список словарей
-    notifications = [
+    return [
         {
             "id": row[0],
             "message": row[1],
@@ -238,8 +233,6 @@ def get_sent_notifications_by_date(date=None):
         }
         for row in rows
     ]
-
-    return notifications
 
 def get_events_by_date(date=None, only_critical=False):
     """

@@ -115,17 +115,35 @@ def get_critical_events():
 @app.route('/api/notifications', methods=['GET'])
 def get_notifications():
     """
-    Эндпоинт для получения отправленных уведомлений.
-    Поддерживает фильтрацию по дате, если передан параметр date.
+    Эндпоинт получения уведомлений.
+    Поддерживает параметры:
+      - date=YYYY-MM-DD (опционально)
+      - only_sent=true/false/1/0 (опционально)
     """
-    # Получаем параметр date из запроса
     date = request.args.get('date')
 
-    # Получаем уведомления из базы данных
-    notifications = get_sent_notifications_by_date(date) if date else get_sent_notifications_by_date()
+    # Нормальное преобразование флага only_sent
+    only_sent_param = request.args.get('only_sent', 'false').lower()
+    only_sent = only_sent_param in ('1', 'true', 'yes', 'y')
 
-    # Преобразуем результат в JSON-ответ
-    return jsonify(notifications)
+    # Получаем данные
+    rows = get_sent_notifications_by_date(
+        date=date,
+        only_sent=only_sent
+    )
+
+    # Приводим к единому JSON-формату
+    data = [
+        {
+            "id": row["id"],
+            "message": row["message"],
+            "sent_at": row["sent_at"],
+            "status": row["status"]
+        }
+        for row in rows
+    ]
+
+    return jsonify(data)
 
 @app.route('/api/device-info', methods=['GET'])
 def get_device_info():
