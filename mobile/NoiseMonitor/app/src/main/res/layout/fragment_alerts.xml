@@ -58,20 +58,29 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Сегодня"/>
+            android:text="@string/button_label_today"
+            android:layout_marginStart="4dp"
+            android:minHeight="50dp"
+            app:fontFamily="@font/montserrat_semibold"/>
 
         <Button
             android:id="@+id/buttonYesterday"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Вчера"/>
+            android:text="@string/button_label_yesterday"
+            android:layout_marginStart="4dp"
+            android:minHeight="50dp"
+            app:fontFamily="@font/montserrat_semibold"/>
 
         <Button
             android:id="@+id/buttonPickDate"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Выбрать"/>
+            android:text="@string/button_label_pick_date"
+            android:layout_marginStart="4dp"
+            android:minHeight="50dp"
+            app:fontFamily="@font/montserrat_semibold"/>
     </LinearLayout>
 </LinearLayout>
