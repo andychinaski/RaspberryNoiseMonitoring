@@ -52,12 +52,13 @@ class DeviceFragment : Fragment() {
 
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()
-
+        rebootDevice()
         viewLifecycleOwner.lifecycleScope.launch {
             delay(3000) // Задержка 3 секунды
             if (dialog.isShowing) {
                 dialog.dismiss()
             }
+            loadDeviceInfo()
         }
     }
 
@@ -79,6 +80,16 @@ class DeviceFragment : Fragment() {
             } catch (e: Exception) {
                 Log.e("DEVICE", "Ошибка получения device-info", e)
                 setOfflineState()
+            }
+        }
+    }
+
+    private fun rebootDevice(){
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val info = RetrofitClient.api.getRebootDevice()
+            } catch (e: Exception) {
+                Log.e("DEVICE", "Ошибка перезагрузки", e)
             }
         }
     }

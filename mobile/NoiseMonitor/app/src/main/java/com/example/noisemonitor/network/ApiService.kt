@@ -2,6 +2,7 @@ package com.example.noisemonitor.network
 
 import com.example.noisemonitor.AlertEvent
 import com.example.noisemonitor.DeviceInfo
+import com.example.noisemonitor.DeviceReboot
 import com.example.noisemonitor.HistoryEvent
 import com.example.noisemonitor.NoiseStats
 import retrofit2.http.GET
@@ -17,6 +18,9 @@ interface ApiService {
 
     @GET("api/device-info")
     suspend fun getDeviceInfo(): DeviceInfo
+
+    @GET("api/device-reboot")
+    suspend fun getRebootDevice(): DeviceReboot
 
     @GET("/api/events")
     suspend fun getEvents(

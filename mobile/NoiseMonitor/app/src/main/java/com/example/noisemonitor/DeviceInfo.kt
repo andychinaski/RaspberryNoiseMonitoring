@@ -11,3 +11,8 @@ data class DeviceInfo(
 
     val uptime: Int
 )
+
+data class DeviceReboot(
+    val message: String,
+    val status: String
+)

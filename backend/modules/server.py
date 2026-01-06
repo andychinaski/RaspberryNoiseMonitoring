@@ -28,7 +28,7 @@ def _get_time_of_day():
         return 'day' if 9 <= now.hour < 22 else 'night'
 
 # Время старта приложения для расчёта uptime
-_app_start_time = time.time()
+device_start_time = time.time()
 
 # Устаревшая версия эндпоинта для получения измерений
 @app.route('/api/measurements', methods=['GET'])
@@ -152,7 +152,7 @@ def get_device_info():
     device_name, uptime (секунды), measurement_frequency, warning_threshold, critical_threshold
     Пороги берутся из default.yaml в зависимости от текущего времени суток (day/night).
     """
-    uptime = int(time.time() - _app_start_time)
+    uptime = int(time.time() - device_start_time)
     measurement_frequency = CONFIG.get('measurement_frequency', 5)
     try:
         measurement_frequency = int(measurement_frequency)
@@ -203,6 +203,17 @@ def get_events():
     ]
 
     return jsonify(data)
+
+@app.route('/api/device-reboot', methods=['GET'])
+def reboot_device():
+    global device_start_time
+
+    device_start_time = time.time()
+
+    return jsonify({
+        "status": "ok",
+        "message": "Device rebooted"
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
