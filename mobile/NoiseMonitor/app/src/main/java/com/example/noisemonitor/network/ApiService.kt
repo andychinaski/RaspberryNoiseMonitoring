@@ -16,7 +16,10 @@ interface ApiService {
     suspend fun getDeviceInfo(): DeviceInfo
 
     @GET("/api/events")
-    suspend fun getEvents(): List<HistoryEvent>
+    suspend fun getEvents(
+        @Query("date") date: String,
+        @Query("only_critical") onlyCritical: Int
+    ): List<HistoryEvent>
 
     @GET("/api/noise-stats")
     suspend fun getNoiseStats(@Query("date") date: String): NoiseStats
