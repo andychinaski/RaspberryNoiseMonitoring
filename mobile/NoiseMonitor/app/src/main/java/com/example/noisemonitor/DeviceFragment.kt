@@ -35,6 +35,10 @@ class DeviceFragment : Fragment() {
         binding.rebootButton.setOnClickListener { 
             showRebootDialog()
         }
+
+        binding.refreshButton.setOnClickListener {
+            refreshDeviceInfo()
+        }
     }
 
     private fun showRebootDialog() {
@@ -69,10 +73,27 @@ class DeviceFragment : Fragment() {
                 binding.deviceUptime.text = "${info.uptime} сек"
                 binding.deviceFrequency.text = "${info.measurementFrequency} сек"
                 binding.deviceStatus.text = "Онлайн"
+                binding.rebootButton.isEnabled = true
+                binding.disableSensorButton.isEnabled = true
 
             } catch (e: Exception) {
                 Log.e("DEVICE", "Ошибка получения device-info", e)
                 setOfflineState()
+            }
+        }
+    }
+
+    private fun refreshDeviceInfo() {
+        showDeviceInfoLoading()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                delay(750)
+                loadDeviceInfo()
+            } catch (e: Exception) {
+                setOfflineState()
+            } finally {
+                hideDeviceInfoLoading()
             }
         }
     }
@@ -82,6 +103,20 @@ class DeviceFragment : Fragment() {
         binding.deviceUptime.text = "--"
         binding.deviceFrequency.text = "--"
         binding.deviceStatus.text = "Офлайн"
+        binding.rebootButton.isEnabled = false
+        binding.disableSensorButton.isEnabled = false
+    }
+
+    private fun showDeviceInfoLoading() {
+        binding.deviceInfoContent.visibility = View.INVISIBLE
+        binding.deviceInfoProgress.visibility = View.VISIBLE
+        binding.rebootButton.isEnabled = false
+        binding.disableSensorButton.isEnabled = false
+    }
+
+    private fun hideDeviceInfoLoading() {
+        binding.deviceInfoProgress.visibility = View.GONE
+        binding.deviceInfoContent.visibility = View.VISIBLE
     }
 
     override fun onDestroyView() {

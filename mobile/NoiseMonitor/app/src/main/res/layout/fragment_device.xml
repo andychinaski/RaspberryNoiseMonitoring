@@ -52,102 +52,118 @@
                         android:padding="8dp"/>
                 </LinearLayout>
 
-                <!-- Поля с информацией -->
-                <LinearLayout
+                <!-- Контейнер данных + троббер -->
+                <FrameLayout
+                    android:id="@+id/deviceInfoContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
-                    <!-- Device name -->
+                    <!-- Поля с информацией -->
                     <LinearLayout
+                        android:id="@+id/deviceInfoContent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
+                        android:orientation="vertical">
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                        <!-- Device name -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/device_name_label"
-                            app:fontFamily="@font/montserrat_medium"/>
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
 
-                        <TextView
-                            android:id="@+id/deviceName"
-                            android:layout_width="wrap_content"
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="@string/device_name_label"
+                                app:fontFamily="@font/montserrat_medium"/>
+
+                            <TextView
+                                android:id="@+id/deviceName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                app:fontFamily="@font/montserrat_semibold"/>
+                        </LinearLayout>
+
+                        <!-- Status -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="--"
-                            app:fontFamily="@font/montserrat_semibold"/>
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="@string/device_status_label"
+                                app:fontFamily="@font/montserrat_medium"/>
+
+                            <TextView
+                                android:id="@+id/deviceStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                app:fontFamily="@font/montserrat_semibold"/>
+                        </LinearLayout>
+
+                        <!-- Uptime -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="@string/device_uptime_label"
+                                app:fontFamily="@font/montserrat_medium"/>
+
+                            <TextView
+                                android:id="@+id/deviceUptime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                app:fontFamily="@font/montserrat_semibold"/>
+                        </LinearLayout>
+
+                        <!-- Measurement frequency -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="@string/device_frequency_label"
+                                app:fontFamily="@font/montserrat_medium"/>
+
+                            <TextView
+                                android:id="@+id/deviceFrequency"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--"
+                                app:fontFamily="@font/montserrat_semibold"/>
+                        </LinearLayout>
+
                     </LinearLayout>
 
-                    <!-- Status -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="4dp">
+                    <ProgressBar
+                        android:id="@+id/deviceInfoProgress"
+                        style="?android:attr/progressBarStyleLarge"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone"/>
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="@string/device_status_label"
-                            app:fontFamily="@font/montserrat_medium"/>
-
-                        <TextView
-                            android:id="@+id/deviceStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="--"
-                            app:fontFamily="@font/montserrat_semibold"/>
-                    </LinearLayout>
-
-                    <!-- Uptime -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="4dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="@string/device_uptime_label"
-                            app:fontFamily="@font/montserrat_medium"/>
-
-                        <TextView
-                            android:id="@+id/deviceUptime"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="--"
-                            app:fontFamily="@font/montserrat_semibold"/>
-                    </LinearLayout>
-
-                    <!-- Measurement frequency -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="4dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="@string/device_frequency_label"
-                            app:fontFamily="@font/montserrat_medium"/>
-
-                        <TextView
-                            android:id="@+id/deviceFrequency"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="--"
-                            app:fontFamily="@font/montserrat_semibold"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-
+                </FrameLayout>
 
                 <!-- Кнопки управления устройством -->
                 <LinearLayout
