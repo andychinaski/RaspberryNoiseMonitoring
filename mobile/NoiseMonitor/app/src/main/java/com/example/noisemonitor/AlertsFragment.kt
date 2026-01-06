@@ -82,7 +82,7 @@ class AlertsFragment : Fragment() {
     private fun loadAlerts() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val alerts = RetrofitClient.api.getNotifications(
+                val alerts = RetrofitClient.getApi(requireContext()).getNotifications(
                     date = selectedDate,
                     onlySent = onlySent
                 )

@@ -31,7 +31,7 @@ class DashboardFragment : Fragment() {
     private fun loadNoiseStats(date: String = getCurrentDate() ) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val stats = RetrofitClient.api.getNoiseStats(date)
+                val stats = RetrofitClient.getApi(requireContext()).getNoiseStats(date)
 
                 // Заполняем поля UI
                 binding.currentNoise.text = "${stats.currentNoise.toString()} дБ"

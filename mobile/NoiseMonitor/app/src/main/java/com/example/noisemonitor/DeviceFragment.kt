@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 import com.example.noisemonitor.network.RetrofitClient
 import kotlinx.coroutines.delay
 import androidx.appcompat.app.AlertDialog
+import com.example.noisemonitor.network.NetworkConfig
 
 class DeviceFragment : Fragment() {
 
@@ -32,6 +34,13 @@ class DeviceFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDeviceBinding.inflate(inflater, container, false)
+
+        binding.root.setOnTouchListener { _, _ ->
+            binding.serverIpEditText.clearFocus()
+            hideKeyboard()
+            false
+        }
+
         return binding.root
     }
 
@@ -39,6 +48,9 @@ class DeviceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         prefs = requireContext().getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        binding.serverIpEditText.setText(
+            NetworkConfig.getServerIp(requireContext())
+        )
         setupAutoUpdateSpinner()
         loadDeviceInfo()
 
@@ -53,11 +65,28 @@ class DeviceFragment : Fragment() {
         binding.saveButton.setOnClickListener{
             val selectedPeriod = binding.autoUpdateSpinner.selectedItem as String
             prefs.edit().putString("auto_update_period", selectedPeriod).apply()
+
+            val ip = binding.serverIpEditText.text.toString().trim()
+
+            if (ip.isEmpty()) {
+                Toast.makeText(requireContext(), "IP не может быть пустым", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            NetworkConfig.saveServerIp(requireContext(), ip)
+
+            RetrofitClient.rebuild(requireContext())
+
             Toast.makeText(requireContext(), "Настройки сохранены", Toast.LENGTH_SHORT).show()
         }
 
         binding.discardButton.setOnClickListener{
             val savedPeriod = prefs.getString("auto_update_period", "none")
+
+            binding.serverIpEditText.setText(
+                NetworkConfig.getServerIp(requireContext())
+            )
+
             binding.autoUpdateSpinner.setSelection(updatePeriods.indexOf(savedPeriod))
         }
     }
@@ -89,7 +118,7 @@ class DeviceFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch { 
             try {
-                val info = RetrofitClient.api.getDeviceInfo()
+                val info = RetrofitClient.getApi(requireContext()).getDeviceInfo()
 
                 binding.deviceName.text = info.deviceName
                 binding.deviceUptime.text = "${info.uptime} сек"
@@ -108,7 +137,7 @@ class DeviceFragment : Fragment() {
     private fun rebootDevice(){
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val info = RetrofitClient.api.getRebootDevice()
+                val info = RetrofitClient.getApi(requireContext()).getRebootDevice()
             } catch (e: Exception) {
                 Log.e("DEVICE", "Ошибка перезагрузки", e)
             }
@@ -159,6 +188,16 @@ class DeviceFragment : Fragment() {
 
         val savedPeriod = prefs.getString("auto_update_period", "none")
         binding.autoUpdateSpinner.setSelection(updatePeriods.indexOf(savedPeriod))
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireActivity()
+            .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+        imm.hideSoftInputFromWindow(
+            requireActivity().window.decorView.windowToken,
+            0
+        )
     }
 
     override fun onDestroyView() {

@@ -9,7 +9,9 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:focusableInTouchMode="true"
+        android:clickable="true">
 
         <!-- ================= Карточка информации об устройстве ================= -->
         <androidx.cardview.widget.CardView
@@ -249,19 +251,23 @@
                     android:gravity="center_vertical"
                     android:layout_marginTop="8dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="IP сервера:"
-                        app:fontFamily="@font/montserrat_medium"/>
 
-                    <EditText
-                        android:id="@+id/serverIpEditText"
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:inputType="text"/>
+                        app:boxBackgroundMode="outline"
+                        app:boxStrokeColor="@color/primary"
+                        app:hintTextColor="@color/text_input_hint">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/serverIpEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="IP сервера:"
+                            android:textColor="@color/text_primary"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
                 <!-- Кнопки сохранить/отмена -->

@@ -82,7 +82,7 @@ class HistoryFragment : Fragment() {
     private fun loadEvents() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val events = RetrofitClient.api.getEvents(
+                val events = RetrofitClient.getApi(requireContext()).getEvents(
                     date = selectedDate,
                     onlyCritical = onlyCritical
                 )

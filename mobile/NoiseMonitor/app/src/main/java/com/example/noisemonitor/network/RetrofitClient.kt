@@ -1,17 +1,30 @@
 package com.example.noisemonitor.network
 
+import android.content.Context
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://172.19.0.1:5000/"
+    private var retrofit: Retrofit? = null
 
-    val api: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
+    fun getApi(context: Context): ApiService {
+        if (retrofit == null) {
+            buildRetrofit(context)
+        }
+        return retrofit!!.create(ApiService::class.java)
+    }
+
+    fun rebuild(context: Context) {
+        buildRetrofit(context)
+    }
+
+    private fun buildRetrofit(context: Context) {
+        val ip = NetworkConfig.getServerIp(context)
+
+        retrofit = Retrofit.Builder()
+            .baseUrl("http://$ip/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ApiService::class.java)
     }
 }
