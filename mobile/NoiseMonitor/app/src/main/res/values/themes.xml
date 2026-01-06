@@ -45,6 +45,26 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <!-- Стиль кнопки DatePicker -->
+    <style name="Widget.NoiseMonitor.DatePicker.Button" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
+    <!-- Стиль для DatePicker -->
+    <style name="ThemeOverlay.NoiseMonitor.DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <!-- Цвет текста (чисел и т.д.) -->
+        <item name="colorOnSurface">@color/surface</item>
+        <!-- Основной цвет (заголовок, выбранная дата) -->
+        <item name="colorPrimary">@color/primary</item>
+        <!-- Цвет текста на выбранной дате -->
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <!-- Стили кнопок -->
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.NoiseMonitor.DatePicker.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.NoiseMonitor.DatePicker.Button</item>
+    </style>
+
     <style name="Widget.NoiseMonitor.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="itemTextAppearanceActive">@style/TextAppearance.NoiseMonitor.BottomNav</item>
         <item name="itemTextAppearanceInactive">@style/TextAppearance.NoiseMonitor.BottomNav</item>

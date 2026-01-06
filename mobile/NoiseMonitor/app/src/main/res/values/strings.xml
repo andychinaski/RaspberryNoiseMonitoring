@@ -30,4 +30,6 @@
     <string name="button_label_today">Сегодня</string>
     <string name="button_label_yesterday">Вчера</string>
     <string name="button_label_pick_date">Выбрать</string>
+
+    <string name="pick_date">Выбор даты</string>
 </resources>

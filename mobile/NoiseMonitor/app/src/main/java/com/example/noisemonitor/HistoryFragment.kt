@@ -12,6 +12,7 @@ import com.example.noisemonitor.databinding.FragmentHistoryBinding
 import com.example.noisemonitor.network.RetrofitClient
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.core.content.ContextCompat
+import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -68,7 +69,7 @@ class HistoryFragment : Fragment() {
         }
 
         binding.buttonPickDate.setOnClickListener {
-            loadEvents()
+            showDatePicker()
         }
 
         binding.refreshButton.setOnClickListener {
@@ -102,6 +103,26 @@ class HistoryFragment : Fragment() {
         val cal = Calendar.getInstance()
         cal.add(Calendar.DAY_OF_YEAR, -1)
         return sdf.format(cal.time)
+    }
+
+    private fun showDatePicker() {
+        val picker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(getString(R.string.pick_date))
+            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .setTheme(R.style.ThemeOverlay_NoiseMonitor_DatePicker)
+            .build()
+
+        picker.show(parentFragmentManager, "DATE_PICKER")
+
+        picker.addOnPositiveButtonClickListener { millis ->
+            selectedDate = formatDate(millis)
+            loadEvents()
+        }
+    }
+
+    private fun formatDate(millis: Long): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return sdf.format(Date(millis))
     }
 
     override fun onDestroyView() {
