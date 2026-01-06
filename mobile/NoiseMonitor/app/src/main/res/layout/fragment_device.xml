@@ -69,13 +69,15 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="@string/device_name_label"/>
+                            android:text="@string/device_name_label"
+                            app:fontFamily="@font/montserrat_medium"/>
 
                         <TextView
                             android:id="@+id/deviceName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="--"/>
+                            android:text="--"
+                            app:fontFamily="@font/montserrat_semibold"/>
                     </LinearLayout>
 
                     <!-- Status -->
@@ -89,13 +91,15 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="@string/device_status_label"/>
+                            android:text="@string/device_status_label"
+                            app:fontFamily="@font/montserrat_medium"/>
 
                         <TextView
                             android:id="@+id/deviceStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="--"/>
+                            android:text="--"
+                            app:fontFamily="@font/montserrat_semibold"/>
                     </LinearLayout>
 
                     <!-- Uptime -->
@@ -109,13 +113,15 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="@string/device_uptime_label"/>
+                            android:text="@string/device_uptime_label"
+                            app:fontFamily="@font/montserrat_medium"/>
 
                         <TextView
                             android:id="@+id/deviceUptime"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="--"/>
+                            android:text="--"
+                            app:fontFamily="@font/montserrat_semibold"/>
                     </LinearLayout>
 
                     <!-- Measurement frequency -->
@@ -129,13 +135,15 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="@string/device_frequency_label"/>
+                            android:text="@string/device_frequency_label"
+                            app:fontFamily="@font/montserrat_medium"/>
 
                         <TextView
                             android:id="@+id/deviceFrequency"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="--"/>
+                            android:text="--"
+                            app:fontFamily="@font/montserrat_semibold"/>
                     </LinearLayout>
 
                 </LinearLayout>
@@ -155,7 +163,8 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Перезагрузить устройство"/>
+                        android:text="Перезагрузить устройство"
+                        app:fontFamily="@font/montserrat_semibold"/>
 
                     <Button
                         android:id="@+id/disableSensorButton"
@@ -163,7 +172,8 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text="Выключить сенсор"
-                        android:layout_marginStart="8dp"/>
+                        android:layout_marginStart="8dp"
+                        app:fontFamily="@font/montserrat_semibold"/>
                 </LinearLayout>
 
             </LinearLayout>
@@ -202,7 +212,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Период автообновления:"/>
+                        android:text="Период автообновления:"
+                        app:fontFamily="@font/montserrat_medium"/>
 
                     <Spinner
                         android:id="@+id/autoUpdateSpinner"
@@ -222,7 +233,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="IP сервера:"/>
+                        android:text="IP сервера:"
+                        app:fontFamily="@font/montserrat_medium"/>
 
                     <EditText
                         android:id="@+id/serverIpEditText"
@@ -247,7 +259,8 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Отмена"/>
+                        android:text="Отмена"
+                        app:fontFamily="@font/montserrat_semibold"/>
 
                     <Button
                         android:id="@+id/saveButton"
@@ -255,7 +268,8 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text="Сохранить"
-                        android:layout_marginStart="8dp"/>
+                        android:layout_marginStart="8dp"
+                        app:fontFamily="@font/montserrat_semibold"/>
                 </LinearLayout>
 
             </LinearLayout>

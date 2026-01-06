@@ -65,6 +65,8 @@
         android:layout_height="wrap_content"
         android:text="This is a sample alert message."
         android:textSize="16sp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        app:fontFamily="@font/montserrat_medium"
+        />
 
 </LinearLayout>
