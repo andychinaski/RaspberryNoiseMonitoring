@@ -10,7 +10,10 @@ import retrofit2.http.Query
 interface ApiService {
 
     @GET("api/notifications")
-    suspend fun getNotifications(): List<AlertEvent>
+    suspend fun getNotifications(
+        @Query("date") date: String,
+        @Query("only_sent") onlySent: Int
+    ): List<AlertEvent>
 
     @GET("api/device-info")
     suspend fun getDeviceInfo(): DeviceInfo
