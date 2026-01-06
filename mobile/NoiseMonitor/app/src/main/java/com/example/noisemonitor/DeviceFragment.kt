@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.noisemonitor.databinding.FragmentDeviceBinding
 import kotlinx.coroutines.launch
 import com.example.noisemonitor.network.RetrofitClient
+import kotlinx.coroutines.delay
+import androidx.appcompat.app.AlertDialog
 
 class DeviceFragment : Fragment() {
 
@@ -29,13 +31,37 @@ class DeviceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         loadDeviceInfo()
+
+        binding.rebootButton.setOnClickListener { 
+            showRebootDialog()
+        }
+    }
+
+    private fun showRebootDialog() {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_reboot_progress, null)
+
+        val dialog = AlertDialog.Builder(requireContext(), R.style.NoiseMonitor_AlertDialog)
+            .setView(dialogView)
+            .setCancelable(false) // Пользователь не может отменить диалог
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(3000) // Задержка 3 секунды
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }
     }
 
     private fun loadDeviceInfo() {
         // дефолт – офлайн
         setOfflineState()
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch { 
             try {
                 val info = RetrofitClient.api.getDeviceInfo()
 

@@ -65,6 +65,27 @@
         <item name="buttonBarNegativeButtonStyle">@style/Widget.NoiseMonitor.DatePicker.Button</item>
     </style>
 
+    <!-- Стиль для AlertDialog -->
+    <style name="NoiseMonitor.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/surface</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.NoiseMonitor.Title.Text</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.NoiseMonitor.Body.Text</item>
+    </style>
+    
+    <style name="MaterialAlertDialog.NoiseMonitor.Title.Text" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    
+    <style name="MaterialAlertDialog.NoiseMonitor.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
     <style name="Widget.NoiseMonitor.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="itemTextAppearanceActive">@style/TextAppearance.NoiseMonitor.BottomNav</item>
         <item name="itemTextAppearanceInactive">@style/TextAppearance.NoiseMonitor.BottomNav</item>

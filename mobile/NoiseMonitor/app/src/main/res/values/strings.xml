@@ -32,4 +32,6 @@
     <string name="button_label_pick_date">Выбрать</string>
 
     <string name="pick_date">Выбор даты</string>
+
+    <string name="reboot_in_progress">Выполняется перезагрузка устройства…</string>
 </resources>
