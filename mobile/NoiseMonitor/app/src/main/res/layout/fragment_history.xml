@@ -21,12 +21,18 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Только критичные события"
-            android:textSize="16sp"/>
+            android:textSize="18sp"
+            app:fontFamily="@font/montserrat_semibold"/>
 
-        <Switch
+        <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/filterSwitch"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            app:thumbTint="@color/switch_thumb_selector"
+            app:trackTint="@color/switch_track_selector"
+            />
 
         <ImageButton
             android:id="@+id/refreshButton"
