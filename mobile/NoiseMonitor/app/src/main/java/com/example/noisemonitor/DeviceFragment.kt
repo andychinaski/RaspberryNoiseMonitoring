@@ -2,6 +2,7 @@ package com.example.noisemonitor
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -64,10 +65,12 @@ class DeviceFragment : Fragment() {
         }
 
         binding.serverIpEditText.setOnFocusChangeListener { _, hasFocus ->
-            binding.serverIpEditText.inputType =
-                if (hasFocus) InputType.TYPE_CLASS_TEXT
-                else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-
+            if (hasFocus) {
+                binding.serverIpEditText.inputType = InputType.TYPE_CLASS_TEXT
+            } else {
+                binding.serverIpEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                binding.serverIpEditText.typeface = Typeface.create("@font/montserrat_regular", Typeface.NORMAL)
+            }
             binding.serverIpEditText.setSelection(
                 binding.serverIpEditText.text?.length ?: 0
             )

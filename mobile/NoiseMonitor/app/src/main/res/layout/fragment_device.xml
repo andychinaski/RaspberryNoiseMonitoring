@@ -258,7 +258,7 @@
                         android:layout_weight="1"
                         app:boxBackgroundMode="outline"
                         app:boxStrokeColor="@color/primary"
-                        app:hintTextColor="@color/text_input_hint">
+                        app:fontFamily="@font/montserrat_regular">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/serverIpEditText"
