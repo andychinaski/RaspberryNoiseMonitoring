@@ -266,7 +266,7 @@
                             android:layout_height="wrap_content"
                             android:hint="IP сервера:"
                             android:textColor="@color/text_primary"
-                            android:inputType="text" />
+                            android:inputType="textPassword"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 

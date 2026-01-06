@@ -3,6 +3,7 @@ package com.example.noisemonitor
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -60,6 +61,16 @@ class DeviceFragment : Fragment() {
 
         binding.refreshButton.setOnClickListener {
             refreshDeviceInfo()
+        }
+
+        binding.serverIpEditText.setOnFocusChangeListener { _, hasFocus ->
+            binding.serverIpEditText.inputType =
+                if (hasFocus) InputType.TYPE_CLASS_TEXT
+                else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+            binding.serverIpEditText.setSelection(
+                binding.serverIpEditText.text?.length ?: 0
+            )
         }
 
         binding.saveButton.setOnClickListener{
