@@ -72,8 +72,9 @@
         <com.example.noisemonitor.ui.SimpleLineChartView
             android:id="@+id/noiseChart"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="160dp"
             app:showTitle="true"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Статистика -->

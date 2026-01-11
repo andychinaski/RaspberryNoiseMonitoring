@@ -181,7 +181,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Перезагрузить устройство"
+                        android:text="Перезагрузка устройства"
                         app:fontFamily="@font/montserrat_semibold"/>
 
                     <Button
