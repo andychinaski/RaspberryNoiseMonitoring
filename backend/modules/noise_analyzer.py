@@ -7,7 +7,7 @@ class NoiseAnalyzer:
     def __init__(self, config):
         self.config = config
         self.sensor = NoiseSensor()
-        self.notifier = TelegramNotifier()
+        self.notifier = TelegramNotifier.from_environment()
         self.high_noise_start = None
         self.checkDuration = 10
 
@@ -69,12 +69,13 @@ class NoiseAnalyzer:
                         info = f"Высокий уровень шума держится более {int(duration)} секунд"
 
                     # Отправка уведомления
-                    self.notifier.send_notification(
-                        now.strftime('%Y-%m-%d %H:%M:%S'),
-                        current_noise_level,
-                        event_type,
-                        info
-                    )
+                    if self.notifier is not None:
+                        self.notifier.send_notification(
+                            now.strftime('%Y-%m-%d %H:%M:%S'),
+                            current_noise_level,
+                            event_type,
+                            info
+                        )
 
         # --- Вставка измерения в БД: одно место, единый формат ---
         measurement_id = insert_measurement(
