@@ -1,7 +1,17 @@
 <script setup>
 import AppMenuItem from './AppMenuItem.vue';
 
-const model = [{ label: 'Главная', items: [{ label: 'Главная', icon: 'pi pi-fw pi-home', to: '/' }] }];
+const model = [
+    {
+        label: 'Разделы',
+        items: [
+            { label: 'Мониторинг', icon: 'pi pi-fw pi-chart-line', to: '/' },
+            { label: 'История', icon: 'pi pi-fw pi-history', to: '/history' },
+            { label: 'Уведомления', icon: 'pi pi-fw pi-bell', to: '/notifications' },
+            { label: 'Устройство', icon: 'pi pi-fw pi-desktop', to: '/device' }
+        ]
+    }
+];
 </script>
 
 <template>
