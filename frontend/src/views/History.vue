@@ -10,6 +10,7 @@ import { getEvents } from '@/service/api.js';
 
 const events = ref([]);
 const error = ref(false);
+const loading = ref(true);
 const selectedDate = ref(null);
 const onlyCritical = ref(false);
 let active = true;
@@ -27,6 +28,7 @@ async function refresh() {
     const id = ++requestId;
     events.value = [];
     error.value = false;
+    loading.value = true;
     try {
         const result = await getEvents(formatDate(selectedDate.value), onlyCritical.value || undefined);
         if (active && id === requestId) events.value = result;
@@ -35,6 +37,8 @@ async function refresh() {
             events.value = [];
             error.value = true;
         }
+    } finally {
+        if (active && id === requestId) loading.value = false;
     }
 }
 
@@ -61,8 +65,13 @@ onUnmounted(() => {
                 <label for="history-critical">Только превышения</label>
             </div>
         </div>
-        <p v-if="error" role="alert">Не удалось загрузить историю. Проверьте соединение и обновите страницу.</p>
-        <DataTable v-if="!error && events.length" :value="events" dataKey="id" scrollable tableStyle="min-width: 48rem">
+        <p v-if="loading" role="status">Загрузка истории...</p>
+        <div v-else-if="error" class="flex flex-col items-start gap-3">
+            <p style="margin: 0" role="alert">Не удалось загрузить историю. Проверьте соединение и попробуйте снова.</p>
+            <Button label="Повторить" icon="pi pi-refresh" @click="refresh" />
+        </div>
+        <p v-else-if="!events.length" role="status">Нет записей для выбранных фильтров.</p>
+        <DataTable v-else :value="events" dataKey="id" scrollable tableStyle="min-width: 48rem">
             <Column field="timestamp" header="Время" style="min-width: 12rem" />
             <Column field="noise_level" header="Уровень шума" style="min-width: 10rem">
                 <template #body="{ data }">{{ data.noise_level }} дБ</template>
