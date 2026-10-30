@@ -2,8 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import Chart from 'primevue/chart';
 import { useLayout } from '@/layout/composables/layout';
-import { getNoiseStats } from '@/service/noiseStats.js';
-import { apiUrl } from '@/service/api.js';
+import { getDeviceInfo, getNoiseStats } from '@/service/api.js';
 
 const now = new Date();
 const localDate = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
@@ -58,8 +57,7 @@ async function refresh() {
         loading.value = false;
         return;
     }
-    fetch(apiUrl('/api/device-info'))
-        .then((response) => { if (!response.ok) throw new Error('Ошибка получения порогов'); return response.json(); })
+    getDeviceInfo()
         .then((device) => {
             if (thresholdId === thresholdRequestId && Number.isFinite(device.warning_threshold) && Number.isFinite(device.critical_threshold)) {
                 thresholds.value = { warning: device.warning_threshold, critical: device.critical_threshold };
