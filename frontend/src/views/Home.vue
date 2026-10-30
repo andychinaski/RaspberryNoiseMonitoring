@@ -1,6 +1,9 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import Chart from 'primevue/chart';
+import { useLayout } from '@/layout/composables/layout';
 import { getNoiseStats } from '@/service/noiseStats.js';
+import { apiUrl } from '@/service/api.js';
 
 const now = new Date();
 const localDate = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
@@ -8,16 +11,61 @@ const selectedDate = ref(localDate);
 const stats = ref(null);
 const loading = ref(false);
 const error = ref(false);
+const thresholds = ref(null);
+let thresholdRequestId = 0;
+const { layoutConfig, isDarkTheme } = useLayout();
+const chartColor = ref('#10b981');
+const chartFill = ref('rgba(16, 185, 129, 0.18)');
+function updateChartTheme() {
+    const style = getComputedStyle(document.documentElement);
+    chartColor.value = style.getPropertyValue('--p-primary-color').trim() || '#10b981';
+    chartFill.value = style.getPropertyValue('--p-primary-100').trim() || 'rgba(16, 185, 129, 0.18)';
+}
+watch([() => layoutConfig.primary, () => layoutConfig.preset, () => layoutConfig.surface, isDarkTheme], async () => {
+    await nextTick();
+    updateChartTheme();
+});
+const chartPoints = computed(() => stats.value?.last_10_minutes ?? []);
+const chartData = computed(() => ({
+    labels: chartPoints.value.map((point) => point.timestamp),
+    datasets: [
+        { label: 'Уровень шума, дБ', data: chartPoints.value.map((point) => point.noise_level), borderColor: chartColor.value, backgroundColor: chartFill.value, fill: true, borderWidth: 2, pointRadius: 0, pointHitRadius: 10, pointHoverRadius: 4, tension: 0.15 },
+        ...(thresholds.value ? [
+            { label: 'Предупреждение', data: chartPoints.value.map(() => thresholds.value.warning), borderColor: '#f59e0b', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, pointHitRadius: 0 },
+            { label: 'Критический', data: chartPoints.value.map(() => thresholds.value.critical), borderColor: '#ef4444', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, pointHitRadius: 0 }
+        ] : [])
+    ]
+}));
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: false }, tooltip: { filter: (item) => item.datasetIndex === 0, callbacks: { label: (context) => `${context.parsed.y} дБ` } } },
+    scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 5, maxRotation: 0, callback(value) { return String(this.getLabelForValue(value)).slice(11, 16); } } },
+        y: { beginAtZero: true, title: { display: true, text: 'дБ' }, ticks: { maxTicksLimit: 5 }, grid: { color: 'rgba(128, 128, 128, 0.12)' } }
+    }
+};
 let requestId = 0;
 
 async function refresh() {
     const id = ++requestId;
+    const thresholdId = ++thresholdRequestId;
+    thresholds.value = null;
     stats.value = null;
     error.value = false;
     if (!selectedDate.value) {
         loading.value = false;
         return;
     }
+    fetch(apiUrl('/api/device-info'))
+        .then((response) => { if (!response.ok) throw new Error('Ошибка получения порогов'); return response.json(); })
+        .then((device) => {
+            if (thresholdId === thresholdRequestId && Number.isFinite(device.warning_threshold) && Number.isFinite(device.critical_threshold)) {
+                thresholds.value = { warning: device.warning_threshold, critical: device.critical_threshold };
+            }
+        })
+        .catch(() => {});
     loading.value = true;
     try {
         const result = await getNoiseStats(selectedDate.value);
@@ -30,8 +78,8 @@ async function refresh() {
 }
 
 watch(selectedDate, refresh, { flush: 'sync' });
-onMounted(refresh);
-onUnmounted(() => requestId++);
+onMounted(() => { updateChartTheme(); refresh(); });
+onUnmounted(() => { requestId++; thresholdRequestId++; });
 </script>
 
 <template>
@@ -55,5 +103,13 @@ onUnmounted(() => requestId++);
             <div><dt>Тип события</dt><dd class="text-xl font-semibold">{{ stats.event_type }}</dd></div>
             <div><dt>Отправлено уведомлений</dt><dd class="text-xl font-semibold">{{ stats.notifications_sent }}</dd></div>
         </dl>
+        <section v-if="stats && stats.current_timestamp != null && !loading && !error" class="mt-6">
+            <h2>Последние 10 минут измерений</h2>
+            <p class="text-sm text-surface-500 mb-4">До последнего измерения выбранного дня</p>
+            <p v-if="thresholds" class="text-sm mb-4">Текущие пороги: <span style="color: #b45309">предупреждение — {{ thresholds.warning }} дБ</span>, <span style="color: #dc2626">критический — {{ thresholds.critical }} дБ</span>. Они применяются к уровню после поправки на тип дома; график показывает исходные измерения. Для прошлых дат и другого времени суток пороги могли отличаться.</p>
+            <p v-else class="text-sm mb-4">Текущие пороги недоступны.</p>
+            <Chart v-if="chartPoints.length" type="line" :data="chartData" :options="chartOptions" class="h-80" aria-label="График уровня шума по времени" />
+            <p v-else role="status">Нет измерений для построения графика.</p>
+        </section>
     </div>
 </template>
