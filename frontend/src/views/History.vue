@@ -1,32 +1,48 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Button from 'primevue/button';
+import DatePicker from 'primevue/datepicker';
 import Tag from 'primevue/tag';
+import ToggleSwitch from 'primevue/toggleswitch';
 import { getEvents } from '@/service/api.js';
 
 const events = ref([]);
 const error = ref(false);
+const selectedDate = ref(null);
+const onlyCritical = ref(false);
 let active = true;
+let requestId = 0;
 
 function eventSeverity(type) {
     return { NORMAL: 'success', WARNING: 'warn', CRITICAL: 'danger' }[type] || 'secondary';
 }
 
-onMounted(async () => {
+function formatDate(date) {
+    return date ? [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-') : undefined;
+}
+
+async function refresh() {
+    const id = ++requestId;
+    events.value = [];
+    error.value = false;
     try {
-        const result = await getEvents();
-        if (active) events.value = result;
+        const result = await getEvents(formatDate(selectedDate.value), onlyCritical.value || undefined);
+        if (active && id === requestId) events.value = result;
     } catch {
-        if (active) {
+        if (active && id === requestId) {
             events.value = [];
             error.value = true;
         }
     }
-});
+}
 
+watch([selectedDate, onlyCritical], refresh, { flush: 'sync' });
+onMounted(refresh);
 onUnmounted(() => {
     active = false;
+    requestId++;
 });
 </script>
 
@@ -34,6 +50,17 @@ onUnmounted(() => {
     <div class="card">
         <h1>История</h1>
         <p class="text-sm text-surface-500 mb-4">Сервер возвращает не более 20 последних записей.</p>
+        <div class="flex flex-wrap items-end gap-4 mb-6">
+            <div class="flex flex-col gap-2">
+                <label for="history-date">Дата</label>
+                <DatePicker v-model="selectedDate" inputId="history-date" dateFormat="dd.mm.yy" placeholder="Все даты" showIcon :manualInput="false" />
+            </div>
+            <Button v-if="selectedDate" label="Все даты" severity="secondary" outlined @click="selectedDate = null" />
+            <div class="flex items-center gap-2 pb-2">
+                <ToggleSwitch v-model="onlyCritical" inputId="history-critical" />
+                <label for="history-critical">Только превышения</label>
+            </div>
+        </div>
         <p v-if="error" role="alert">Не удалось загрузить историю. Проверьте соединение и обновите страницу.</p>
         <DataTable v-if="!error && events.length" :value="events" dataKey="id" scrollable tableStyle="min-width: 48rem">
             <Column field="timestamp" header="Время" style="min-width: 12rem" />
